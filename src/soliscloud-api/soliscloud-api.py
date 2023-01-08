@@ -1,7 +1,7 @@
 """Access to the Soliscloud API for PV monitoring.
 Works for all Ginlong brands using the Soliscloud API
 
-For more information: https://github.com/hultenvp/solis-sensor/
+For more information: https://github.com/hultenvp/soliscloud-api
 """
 from __future__ import annotations
 
