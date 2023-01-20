@@ -624,7 +624,8 @@ class SoliscloudAPI():
     async def _post_data_json(self,
         url: str,
         header: dict[str, Any],
-        params: dict[str, Any]) -> dict[str, Any]:
+        params: dict[str, Any]
+    ) -> dict[str, Any]:
         """ Http-post data to specified domain/canonicalized_resource. """
 
         resp = None
@@ -642,7 +643,7 @@ class SoliscloudAPI():
                             raise SoliscloudAPI.ApiError(result['msg'], result['code'])
                         return result['data']
                     except (KeyError, TypeError) as err:
-                        raise SoliscloudAPI.ApiError("Malformed server response", \
+                        raise SoliscloudAPI.ApiError("Malformed server response",
                             response=result) from err
                 else:
                     raise SoliscloudAPI.HttpError(resp.status)
