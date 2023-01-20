@@ -2,6 +2,7 @@ import pytest
 import soliscloud_api.soliscloud_api as api
 from .const import KEY, SECRET, NMI, VALID_RESPONSE
 
+
 @pytest.fixture
 def api_instance():
     instance = api.SoliscloudAPI('https://soliscloud_test.com:13333', 1)
