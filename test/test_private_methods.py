@@ -60,7 +60,7 @@ def test_prepare_header(mocker):
 @pytest.mark.asyncio
 async def test_post_data_json(api_instance, mocker):
     mocker.patch('soliscloud_api.soliscloud_api.SoliscloudAPI._do_post_aiohttp', return_value=VALID_HTTP_RESPONSE)
-    result=await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
+    result = await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
     assert result == VALID_RESPONSE['data']
 
 
