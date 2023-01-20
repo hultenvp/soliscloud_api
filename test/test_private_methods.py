@@ -1,8 +1,9 @@
 import pytest
+import asyncio
 from datetime import datetime
 from datetime import timezone
+from aiohttp import ClientError
 import soliscloud_api.soliscloud_api as api
-
 from .const import KEY, SECRET, VALID_RESPONSE
 
 VALID_HEADER = {
@@ -11,6 +12,31 @@ VALID_HEADER = {
     'Date': 'Sun, 01 Jan 2023 00:00:00 GMT',
     'Authorization': 'API 1234567891234567890:8+oYgqSEFjxPaHIOgUKSpIdYCGU='
 }
+
+INVALID_RESPONSE_KEYERROR = {'succes': True, 'codes': '0', 'msg': 'success', 'data': {'page': {'records': {'success': 1}}}}
+
+
+class MockedResponse():
+    _body = None
+    _httpstatus = None
+
+    def __init__(self, body, status):
+        self._body = body
+        self._httpstatus = status
+
+    async def json(self):
+        return self._body
+
+    async def release(self):
+        return
+
+    @property
+    def status(self):
+        return self._httpstatus
+
+
+VALID_HTTP_RESPONSE = MockedResponse(VALID_RESPONSE, 200)
+HTTP_RESPONSE_KEYERROR = MockedResponse(INVALID_RESPONSE_KEYERROR, 200)
 
 
 @pytest.fixture
@@ -33,8 +59,30 @@ def test_prepare_header(mocker):
 
 @pytest.mark.asyncio
 async def test_post_data_json(api_instance, mocker):
-    # Still to do
-    pass
+    mocker.patch('soliscloud_api.soliscloud_api.SoliscloudAPI._do_post_aiohttp', return_value=VALID_HTTP_RESPONSE)
+    result = await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
+    assert result == VALID_RESPONSE['data']
+
+
+@pytest.mark.asyncio
+async def test_post_data_json_fail(api_instance, mocker):
+    mocker.patch('soliscloud_api.soliscloud_api.SoliscloudAPI._do_post_aiohttp', return_value=HTTP_RESPONSE_KEYERROR)
+    with pytest.raises(api.SoliscloudAPI.ApiError):
+        await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
+    mocker.patch(
+        'soliscloud_api.soliscloud_api.SoliscloudAPI._do_post_aiohttp',
+        return_value=VALID_HTTP_RESPONSE,
+        side_effect=asyncio.TimeoutError
+    )
+    with pytest.raises(api.SoliscloudAPI.SolisCloudError):
+        await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
+    mocker.patch(
+        'soliscloud_api.soliscloud_api.SoliscloudAPI._do_post_aiohttp',
+        return_value=VALID_HTTP_RESPONSE,
+        side_effect=ClientError
+    )
+    with pytest.raises(api.SoliscloudAPI.SolisCloudError):
+        await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
 
 
 @pytest.mark.asyncio
