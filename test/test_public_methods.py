@@ -5,8 +5,8 @@ from .const import KEY, SECRET, NMI, VALID_RESPONSE
 @pytest.fixture
 def api_instance():
     instance = api.SoliscloudAPI('https://soliscloud_test.com:13333', 1)
-
     return instance
+
 
 @pytest.fixture
 def patched_api(api_instance, mocker):
@@ -17,6 +17,7 @@ def patched_api(api_instance, mocker):
     mocker.patch.object(api_instance, '_get_data', mocked_class._get_data)
 
     return mocked_class
+
 
 @pytest.mark.asyncio
 async def test_user_station_list_valid(api_instance, patched_api):
@@ -40,6 +41,7 @@ async def test_user_station_list_valid(api_instance, patched_api):
         SECRET,
         {'pageNo': 4, 'pageSize': 100, 'nmiCode': 'nmi_code'}
     )
+
 
 @pytest.mark.asyncio
 async def test_user_station_list_invalid_page_size(api_instance):
@@ -115,6 +117,7 @@ async def test_collector_detail_valid(api_instance, patched_api):
         {'id': '1000'}
     )
 
+
 @pytest.mark.asyncio
 async def test_collector_detail_invalid_params(api_instance):
     # ID and SN together
@@ -162,6 +165,7 @@ async def test_inverter_detail_valid(api_instance, patched_api):
     assert result == VALID_RESPONSE
     patched_api._get_data.assert_called_with(api.INVERTER_DETAIL, KEY, SECRET, {'id': '1000'})
 
+
 @pytest.mark.asyncio
 async def test_inverter_detail_invalid_params(api_instance):
     # ID and SN together
@@ -181,7 +185,7 @@ async def test_station_day_valid(api_instance, patched_api):
         {'money': 'EUR', 'time': '2023-01-01', 'timeZone': 1, 'id': '1000'}
     )
 
-    result=await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, nmi_code=NMI)
+    result = await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, nmi_code=NMI)
     assert result == VALID_RESPONSE
     patched_api._get_data.assert_called_with(
         api.STATION_DAY,
@@ -198,7 +202,8 @@ async def test_station_day_invalid_params(api_instance):
         await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1)
 
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
-        await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, station_id='1000', nmi_code=NMI)
+        await api_instance.station_day(
+            KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, station_id='1000', nmi_code=NMI)
 
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
         await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023', time_zone=1, station_id='1000')
@@ -247,6 +252,7 @@ async def test_station_month_invalid_params(api_instance):
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
         await api_instance.station_month(KEY, SECRET, currency='EUR', month='2023+01', station_id='1000')
 
+
 @pytest.mark.asyncio
 async def test_station_year_valid(api_instance, patched_api):
     # Required arguments only
@@ -282,11 +288,11 @@ async def test_station_all_valid(api_instance, patched_api):
     # Required arguments only
     result = await api_instance.station_all(KEY, SECRET, currency='EUR', station_id='1000')
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(api.STATION_ALL, KEY, SECRET, {'money': 'EUR', 'id':'1000'})
+    patched_api._get_data.assert_called_with(api.STATION_ALL, KEY, SECRET, {'money': 'EUR', 'id': '1000'})
 
     result = await api_instance.station_all(KEY, SECRET, currency='EUR', nmi_code=NMI)
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(api.STATION_ALL, KEY, SECRET, {'money': 'EUR', 'nmiCode':NMI})
+    patched_api._get_data.assert_called_with(api.STATION_ALL, KEY, SECRET, {'money': 'EUR', 'nmiCode': NMI})
 
 
 @pytest.mark.asyncio
@@ -328,7 +334,8 @@ async def test_inverter_day_invalid_params(api_instance):
         await api_instance.inverter_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1)
 
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
-        await api_instance.inverter_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, inverter_id='1000', inverter_sn='sn')
+        await api_instance.inverter_day(
+            KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, inverter_id='1000', inverter_sn='sn')
 
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
         await api_instance.inverter_day(KEY, SECRET, currency='EUR', time='2023', time_zone=1, inverter_id='1000')
@@ -345,11 +352,21 @@ async def test_inverter_month_valid(api_instance, patched_api):
     # Required arguments only
     result = await api_instance.inverter_month(KEY, SECRET, currency='EUR', month='2023-01', inverter_id='1000')
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(api.INVERTER_MONTH, KEY, SECRET, {'money': 'EUR', 'month':'2023-01', 'id':'1000'})
+    patched_api._get_data.assert_called_with(
+        api.INVERTER_MONTH,
+        KEY,
+        SECRET,
+        {'money': 'EUR', 'month': '2023-01', 'id': '1000'}
+    )
 
     result = await api_instance.inverter_month(KEY, SECRET, currency='EUR', month='2023-01', inverter_sn='sn')
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(api.INVERTER_MONTH, KEY, SECRET, {'money': 'EUR', 'month':'2023-01', 'sn':'sn'})
+    patched_api._get_data.assert_called_with(
+        api.INVERTER_MONTH,
+        KEY,
+        SECRET,
+        {'money': 'EUR', 'month': '2023-01', 'sn': 'sn'}
+    )
 
 
 @pytest.mark.asyncio
@@ -373,11 +390,21 @@ async def test_inverter_year_valid(api_instance, patched_api):
     # Required arguments only
     result = await api_instance.inverter_year(KEY, SECRET, currency='EUR', year='2023', inverter_id='1000')
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(api.INVERTER_YEAR, KEY, SECRET, {'money': 'EUR', 'year':'2023', 'id':'1000'})
+    patched_api._get_data.assert_called_with(
+        api.INVERTER_YEAR,
+        KEY,
+        SECRET,
+        {'money': 'EUR', 'year': '2023', 'id': '1000'}
+    )
 
     result = await api_instance.inverter_year(KEY, SECRET, currency='EUR', year='2023', inverter_sn='sn')
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(api.INVERTER_YEAR, KEY, SECRET, {'money': 'EUR', 'year':'2023', 'sn':'sn'})
+    patched_api._get_data.assert_called_with(
+        api.INVERTER_YEAR,
+        KEY,
+        SECRET,
+        {'money': 'EUR', 'year': '2023', 'sn': 'sn'}
+    )
 
 
 @pytest.mark.asyncio
@@ -398,11 +425,11 @@ async def test_inverter_all_valid(api_instance, patched_api):
     # Required arguments only
     result = await api_instance.inverter_all(KEY, SECRET, currency='EUR', inverter_id='1000')
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(api.INVERTER_ALL, KEY, SECRET, {'money': 'EUR', 'id':'1000'})
+    patched_api._get_data.assert_called_with(api.INVERTER_ALL, KEY, SECRET, {'money': 'EUR', 'id': '1000'})
 
     result = await api_instance.inverter_all(KEY, SECRET, currency='EUR', inverter_sn='sn')
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(api.INVERTER_ALL, KEY, SECRET, {'money': 'EUR', 'sn':'sn'})
+    patched_api._get_data.assert_called_with(api.INVERTER_ALL, KEY, SECRET, {'money': 'EUR', 'sn': 'sn'})
 
 
 @pytest.mark.asyncio
@@ -418,7 +445,8 @@ async def test_inverter_all_invalid_params(api_instance):
 @pytest.mark.asyncio
 async def test_inverter_alarm_list_valid(api_instance, patched_api):
     # Required arguments only
-    result = await api_instance.inverter_alarm_list(KEY, SECRET, station_id='1000', begintime='2022-01-01', endtime='2023-01-01')
+    result = await api_instance.inverter_alarm_list(
+        KEY, SECRET, station_id='1000', begintime='2022-01-01', endtime='2023-01-01')
     assert result == VALID_RESPONSE
     patched_api._get_records.assert_called_with(
         api.ALARM_LIST,
@@ -456,8 +484,15 @@ async def test_inverter_alarm_list_valid(api_instance, patched_api):
     patched_api._get_records.assert_called_with(
         api.ALARM_LIST,
         KEY,
-        SECRET, 
-        {'pageNo': 4, 'pageSize': 30, 'alarmDeviceSn': '1000', 'alarmBeginTime': '2022-01-01', 'alarmEndTime': '2023-01-01', 'nmiCode': NMI}
+        SECRET,
+        {
+            'pageNo': 4,
+            'pageSize': 30,
+            'alarmDeviceSn': '1000',
+            'alarmBeginTime': '2022-01-01',
+            'alarmEndTime': '2023-01-01',
+            'nmiCode': NMI
+        }
     )
 
 
@@ -465,13 +500,17 @@ async def test_inverter_alarm_list_valid(api_instance, patched_api):
 async def test_inverter_alarm_list_invalid_params(api_instance):
     # Wrong page size
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
-        await api_instance.inverter_alarm_list(KEY, SECRET, page_size=1000, station_id='1000', begintime='2022-01-01', endtime='2023-01-01')
+        await api_instance.inverter_alarm_list(
+            KEY, SECRET, page_size=1000, station_id='1000', begintime='2022-01-01', endtime='2023-01-01'
+        )
     # No Id and no Sn
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
         await api_instance.inverter_alarm_list(KEY, SECRET, begintime='2022-01-01', endtime='2023-01-01')
     # Both Id and Sn
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
-        await api_instance.inverter_alarm_list(KEY, SECRET, begintime='2022-01-01', endtime='2023-01-01', station_id='1000', device_sn='sn')
+        await api_instance.inverter_alarm_list(
+            KEY, SECRET, begintime='2022-01-01', endtime='2023-01-01', station_id='1000', device_sn='sn'
+        )
     # Illegal begin time
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
         await api_instance.inverter_alarm_list(KEY, SECRET, begintime='2022', endtime='2023-01-01', station_id='1000')
@@ -743,10 +782,10 @@ async def test_epm_year_invalid_params(api_instance):
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
         await api_instance.epm_year(KEY, SECRET, epm_sn='sn', year='22023')
 
-        
+
 @pytest.mark.asyncio
 async def test_epm_all_valid(api_instance, patched_api):
     # Required arguments only
     result = await api_instance.epm_all(KEY, SECRET, epm_sn='sn')
     assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(api.EPM_ALL, KEY, SECRET, {'sn':'sn'})
+    patched_api._get_records.assert_called_with(api.EPM_ALL, KEY, SECRET, {'sn': 'sn'})
