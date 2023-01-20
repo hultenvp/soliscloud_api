@@ -13,11 +13,13 @@ VALID_HEADER = {
     'Authorization': 'API 1234567891234567890:8+oYgqSEFjxPaHIOgUKSpIdYCGU='
 }
 
-INVALID_RESPONSE_KEYERROR = {'succes': True, 'codes': '0', 'msg': 'success', 'data': {'page': {'records':{'success': 1}}}}
+INVALID_RESPONSE_KEYERROR = {'succes': True, 'codes': '0', 'msg': 'success', 'data': {'page': {'records': {'success': 1}}}}
+
 
 class MockedResponse():
     _body = None
     _httpstatus = None
+
     def __init__(self, body, status):
         self._body = body
         self._httpstatus = status
@@ -32,8 +34,10 @@ class MockedResponse():
     def status(self):
         return self._httpstatus
 
+
 VALID_HTTP_RESPONSE = MockedResponse(VALID_RESPONSE, 200)
 HTTP_RESPONSE_KEYERROR = MockedResponse(INVALID_RESPONSE_KEYERROR, 200)
+
 
 @pytest.fixture
 def api_instance():
@@ -65,10 +69,18 @@ async def test_post_data_json_fail(api_instance, mocker):
     mocker.patch('soliscloud_api.soliscloud_api.SoliscloudAPI._do_post_aiohttp', return_value=HTTP_RESPONSE_KEYERROR)
     with pytest.raises(api.SoliscloudAPI.ApiError):
         await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
-    mocker.patch('soliscloud_api.soliscloud_api.SoliscloudAPI._do_post_aiohttp', return_value=VALID_HTTP_RESPONSE, side_effect=asyncio.TimeoutError)
+    mocker.patch(
+        'soliscloud_api.soliscloud_api.SoliscloudAPI._do_post_aiohttp',
+        return_value=VALID_HTTP_RESPONSE,
+        side_effect=asyncio.TimeoutError
+    )
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
         await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
-    mocker.patch('soliscloud_api.soliscloud_api.SoliscloudAPI._do_post_aiohttp', return_value=VALID_HTTP_RESPONSE, side_effect=ClientError)
+    mocker.patch(
+        'soliscloud_api.soliscloud_api.SoliscloudAPI._do_post_aiohttp',
+        return_value=VALID_HTTP_RESPONSE,
+        side_effect=ClientError
+    )
     with pytest.raises(api.SoliscloudAPI.SolisCloudError):
         await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
 
