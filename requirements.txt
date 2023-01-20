@@ -10,3 +10,4 @@ asyncio
 #typing
 aiohttp
 #async_timeout
+pytest-mock
