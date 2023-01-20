@@ -648,8 +648,7 @@ class SoliscloudAPI():
                 await resp.release()
             raise SoliscloudAPI.ApiError(err)
         except (KeyError, TypeError) as err:
-            raise SoliscloudAPI.ApiError("Malformed server response", \
-                response=result) from err
+            raise SoliscloudAPI.ApiError("Malformed server response", response=result) from err
 
     @staticmethod
     def _now() -> datetime.datetime:
