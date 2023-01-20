@@ -581,10 +581,6 @@ class SoliscloudAPI():
         return result
 
     @staticmethod
-    def _now() -> datetime.datetime:
-        return datetime.now(timezone.utc)
-
-    @staticmethod
     def _prepare_header(
         key_id: str,
         secret: bytes,
@@ -634,17 +630,13 @@ class SoliscloudAPI():
             raise SoliscloudAPI.SolisCloudError("aiohttp.ClientSession not set")
         try:
             async with async_timeout.timeout(10):
-                resp = await self._session.post(url, json=params, headers=header)
+                resp = await SoliscloudAPI._do_post_aiohttp(self._session, url, params, header)
 
                 result = await resp.json()
                 if resp.status == HTTPStatus.OK:
-                    try:
-                        if result['code'] != '0':
-                            raise SoliscloudAPI.ApiError(result['msg'], result['code'])
-                        return result['data']
-                    except (KeyError, TypeError) as err:
-                        raise SoliscloudAPI.ApiError("Malformed server response",
-                            response=result) from err
+                    if result['code'] != '0':
+                        raise SoliscloudAPI.ApiError(result['msg'], result['code'])
+                    return result['data']
                 else:
                     raise SoliscloudAPI.HttpError(resp.status)
         except asyncio.TimeoutError as err:
@@ -655,6 +647,24 @@ class SoliscloudAPI():
             if resp is not None:
                 await resp.release()
             raise SoliscloudAPI.ApiError(err)
+        except (KeyError, TypeError) as err:
+            raise SoliscloudAPI.ApiError("Malformed server response", \
+                response=result) from err
+
+    @staticmethod
+    def _now() -> datetime.datetime:
+        """ Allows mocking for unit tests."""
+        return datetime.now(timezone.utc)
+
+    @staticmethod
+    async def _do_post_aiohttp(
+        session,
+        url: str,
+        params: dict[str, Any],
+        header: dict[str, Any]
+    ) -> dict[str, Any]:
+        """ Allows mocking for unit tests."""
+        return await session.post(url, json=params, headers=header)
 
     @staticmethod
     def _verify_date(format: SoliscloudAPI.DateFormat, date: str):
