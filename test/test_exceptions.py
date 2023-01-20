@@ -37,6 +37,6 @@ def test_http_error(mocker):
 
 def test_timeout_error(mocker):
     err = api.SoliscloudAPI.TimeoutError()
-    assert f"{err}" == 'Timeout error occurred
+    assert f"{err}" == 'Timeout error occurred'
     err = api.SoliscloudAPI.TimeoutError("TEST")
     assert f"{err}" == 'TEST'
