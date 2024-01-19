@@ -58,7 +58,6 @@ EPM_ALL = RESOURCE_PREFIX + 'epm/all'
 class SoliscloudAPI():
     """Class with functions for reading data from the Soliscloud Portal."""
 
-
     class SolisCloudError(Exception):
         """
         Exception raised for timeouts during calls.
@@ -134,7 +133,7 @@ class SoliscloudAPI():
     async def user_station_list(self, key_id: str, secret: bytes, /, *,
         page_no: int = 1,
         page_size: int = 20,
-        nmi_code: str=None
+        nmi_code: str = None
     ) -> dict[str, str]:
         """Power station List"""
 
@@ -148,7 +147,7 @@ class SoliscloudAPI():
 
     async def station_detail(self, key_id: str, secret: bytes, /, *,
         station_id: int,
-        nmi_code: str=None
+        nmi_code: str = None
     ) -> dict[str, str]:
         """Power station details"""
 
@@ -160,8 +159,8 @@ class SoliscloudAPI():
     async def collector_list(self, key_id: str, secret: bytes, /, *,
         page_no: int = 1,
         page_size: int = 20,
-        station_id: int=None,
-        nmi_code: str=None
+        station_id: int = None,
+        nmi_code: str = None
     ) -> dict[str, str]:
         """Datalogger list"""
 
@@ -176,8 +175,8 @@ class SoliscloudAPI():
         return await self._get_records(COLLECTOR_LIST, key_id, secret, params)
 
     async def collector_detail(self, key_id: str, secret: bytes, /, *,
-        collector_sn: int=None,
-        collector_id: str=None
+        collector_sn: int = None,
+        collector_id: str = None
     ) -> dict[str, str]:
         """Datalogger details"""
 
@@ -194,8 +193,8 @@ class SoliscloudAPI():
     async def inverter_list(self, key_id: str, secret: bytes, /, *,
         page_no: int = 1,
         page_size: int = 20,
-        station_id: str=None,
-        nmi_code: str=None
+        station_id: str = None,
+        nmi_code: str = None
     ) -> dict[str, str]:
         """Inverter list"""
 
@@ -211,8 +210,8 @@ class SoliscloudAPI():
         return await self._get_records(INVERTER_LIST, key_id, secret, params)
 
     async def inverter_detail(self, key_id: str, secret: bytes, /, *,
-        inverter_sn: int=None,
-        inverter_id: str=None
+        inverter_sn: int = None,
+        inverter_id: str = None
     ) -> dict[str, str]:
         """Inverter details"""
 
@@ -230,7 +229,7 @@ class SoliscloudAPI():
         currency: str,
         time: str,
         time_zone: int,
-        station_id: int=None,
+        station_id: int = None,
         nmi_code=None
     ) -> dict[str, str]:
         """Station daily graph"""
@@ -250,7 +249,7 @@ class SoliscloudAPI():
     async def station_month(self, key_id: str, secret: bytes, /, *,
         currency: str,
         month: str,
-        station_id: int=None,
+        station_id: int = None,
         nmi_code=None
     ) -> dict[str, str]:
         """Station monthly graph"""
@@ -270,7 +269,7 @@ class SoliscloudAPI():
     async def station_year(self, key_id: str, secret: bytes, /, *,
         currency: str,
         year: str,
-        station_id: int=None,
+        station_id: int = None,
         nmi_code=None
     ) -> dict[str, str]:
         """Station yearly graph"""
@@ -289,8 +288,8 @@ class SoliscloudAPI():
 
     async def station_all(self, key_id: str, secret: bytes, /, *,
         currency: str,
-        station_id: int=None,
-        nmi_code: str=None
+        station_id: int = None,
+        nmi_code: str = None
     ) -> dict[str, str]:
         """Station cumulative graph"""
 
@@ -308,8 +307,8 @@ class SoliscloudAPI():
         currency: str,
         time: str,
         time_zone: int,
-        inverter_id: int=None,
-        inverter_sn: str=None
+        inverter_id: int = None,
+        inverter_sn: str = None
     ) -> dict[str, str]:
         """Inverter daily graph"""
 
@@ -329,8 +328,8 @@ class SoliscloudAPI():
     async def inverter_month(self, key_id: str, secret: bytes, /, *,
         currency: str,
         month: str,
-        inverter_id: int=None,
-        inverter_sn: str=None
+        inverter_id: int = None,
+        inverter_sn: str = None
     ) -> dict[str, str]:
         """Inverter monthly graph"""
 
@@ -350,8 +349,8 @@ class SoliscloudAPI():
     async def inverter_year(self, key_id: str, secret: bytes, /, *,
         currency: str,
         year: str,
-        inverter_id: int=None,
-        inverter_sn: str=None
+        inverter_id: int = None,
+        inverter_sn: str = None
     ) -> dict[str, str]:
         """Inverter yearly graph"""
 
@@ -370,8 +369,8 @@ class SoliscloudAPI():
 
     async def inverter_all(self, key_id: str, secret: bytes, /, *,
         currency: str,
-        inverter_id: int=None,
-        inverter_sn: str=None
+        inverter_id: int = None,
+        inverter_sn: str = None
     ) -> dict[str, str]:
         """Inverter cumulative graph"""
 
@@ -389,11 +388,11 @@ class SoliscloudAPI():
     async def inverter_alarm_list(self, key_id: str, secret: bytes, /, *,
         page_no: int = 1,
         page_size: int = 20,
-        station_id: str=None,
-        device_sn: str=None,
-        begintime: str=None,
-        endtime: str=None,
-        nmi_code: str=None
+        station_id: str = None,
+        device_sn: str = None,
+        begintime: str = None,
+        endtime: str = None,
+        nmi_code: str = None
     ) -> dict[str, str]:
         """Alarm check"""
 
@@ -484,7 +483,7 @@ class SoliscloudAPI():
     async def epm_list(self, key_id: str, secret: bytes, /, *,
         page_no: int = 1,
         page_size: int = 20,
-        station_id: str=None
+        station_id: str = None
     ) -> dict[str, str]:
         """EPM list"""
 
