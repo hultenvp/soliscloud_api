@@ -49,7 +49,7 @@ def api_instance():
 def test_prepare_header(mocker):
     # Mock datetime to get deterministic result
     mocker.patch('soliscloud_api.SoliscloudAPI._now', return_value=datetime(2023, 1, 1, tzinfo=timezone.utc))
-    header = SoliscloudAPI._prepare_header('1234567891234567890', b'DEADBEEFDEADBEEFDEADBEEFDEADBEEF', \
+    header = SoliscloudAPI._prepare_header('1234567891234567890', b'DEADBEEFDEADBEEFDEADBEEFDEADBEEF',
                                            {'pageNo': 1, 'pageSize': 100}, 'TEST')
     assert header == VALID_HEADER
 
