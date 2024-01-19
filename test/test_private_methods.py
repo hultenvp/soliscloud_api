@@ -3,9 +3,8 @@ import asyncio
 from datetime import datetime
 from datetime import timezone
 from aiohttp import ClientError
-from unittest.mock import patch
 from soliscloud_api import SoliscloudAPI
-from .const import KEY, SECRET, NMI, VALID_RESPONSE
+from .const import KEY, SECRET, VALID_RESPONSE
 
 VALID_HEADER = {
     'Content-MD5': 'U0Xj//qmRi3zoyapfAAuXw==',
@@ -14,11 +13,14 @@ VALID_HEADER = {
     'Authorization': 'API 1234567891234567890:8+oYgqSEFjxPaHIOgUKSpIdYCGU='
 }
 
-INVALID_RESPONSE_KEYERROR = {'succes': True, 'codes': '0', 'msg': 'success', 'data': {'page': {'records':{'success': 1}}}}
+INVALID_RESPONSE_KEYERROR = {'succes': True, 'codes': '0', 'msg': 'success', 'data': {'page': {'records': {'success': 1}}}}
 
 class MockedResponse():
+
+
     _body = None
     _httpstatus = None
+
     def __init__(self, body, status):
         self._body = body
         self._httpstatus = status
@@ -33,19 +35,23 @@ class MockedResponse():
     def status(self):
         return self._httpstatus
 
+
 VALID_HTTP_RESPONSE = MockedResponse(VALID_RESPONSE, 200)
 HTTP_RESPONSE_KEYERROR = MockedResponse(INVALID_RESPONSE_KEYERROR, 200)
+
 
 @pytest.fixture
 def api_instance():
     instance = SoliscloudAPI('https://soliscloud_test.com:13333/', 1)
     return instance
 
+
 def test_prepare_header(mocker):
     # Mock datetime to get deterministic result
     mocker.patch('soliscloud_api.SoliscloudAPI._now', return_value=datetime(2023,1,1,tzinfo=timezone.utc))
     header = SoliscloudAPI._prepare_header('1234567891234567890', b'DEADBEEFDEADBEEFDEADBEEFDEADBEEF', {'pageNo': 1, 'pageSize': 100}, 'TEST')
     assert header==VALID_HEADER
+
 
 @pytest.mark.asyncio
 async def test_post_data_json(api_instance, mocker):
@@ -75,6 +81,7 @@ async def test_get_data(api_instance, mocker):
     api_instance._post_data_json.assert_called_with('https://soliscloud_test.com:13333/TEST', VALID_HEADER, {'pageNo': 1, 'pageSize': 100})
     assert result==VALID_RESPONSE
 
+
 @pytest.mark.asyncio
 async def test_get_records(api_instance, mocker):
     mocker.patch.object(api_instance, '_post_data_json', return_value = VALID_RESPONSE['data'])
@@ -82,4 +89,3 @@ async def test_get_records(api_instance, mocker):
     result=await api_instance._get_records("/TEST", KEY, SECRET, {'pageNo': 1, 'pageSize': 100})
     api_instance._post_data_json.assert_called_with('https://soliscloud_test.com:13333/TEST', VALID_HEADER, {'pageNo': 1, 'pageSize': 100})
     assert result==VALID_RESPONSE['data']['page']['records']
-
