@@ -3,7 +3,7 @@ import asyncio
 import logging
 import json
 
-from aiohttp import ClientError, ClientSession
+from aiohttp import ClientSession
 
 from soliscloud_api import SoliscloudAPI
 
@@ -24,7 +24,7 @@ async def main():
             station_list = await soliscloud.user_station_list(API_KEY, API_SECRET, page_no=1, page_size=100)
             # Australian accounts require NMI, use this call instead of previous if required.
             # station_list = await soliscloud.user_station_list(KEY, SECRET, page_no=1, page_size=100, nmi_code=API_NMI)
-            station_list_json = json.dumps(station_list, indent = 2)
+            station_list_json = json.dumps(station_list, indent=2)
         except (
             SoliscloudAPI.SolisCloudError,
             SoliscloudAPI.HttpError,
@@ -33,7 +33,7 @@ async def main():
         ) as error:
             print(f"Error: {error}")
         else:
-            print(f"UserStationList call success:")
+            print("UserStationList call success:")
             print(f"{station_list_json}")
 
 
