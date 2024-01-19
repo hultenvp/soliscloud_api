@@ -3,6 +3,7 @@ import pytest
 from soliscloud_api import *
 from .const import KEY, SECRET, NMI, VALID_RESPONSE
 
+
 @pytest.fixture
 def api_instance():
     instance = SoliscloudAPI('https://soliscloud_test.com:13333', 1)
@@ -241,11 +242,13 @@ async def test_inverter_day_valid(api_instance, patched_api):
     # Required arguments only
     result = await api_instance.inverter_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, inverter_id='1000')
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(INVERTER_DAY, KEY, SECRET, {'money': 'EUR', 'time': '2023-01-01', 'timeZone': 1, 'id': '1000'})
+    patched_api._get_data.assert_called_with(INVERTER_DAY, KEY, SECRET, {'money': 'EUR', 'time': '2023-01-01',
+                                                                         'timeZone': 1, 'id': '1000'})
 
     result = await api_instance.inverter_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, inverter_sn='sn')
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(INVERTER_DAY, KEY, SECRET, {'money': 'EUR', 'time': '2023-01-01', 'timeZone': 1, 'sn': 'sn'})
+    patched_api._get_data.assert_called_with(INVERTER_DAY, KEY, SECRET, {'money': 'EUR', 'time': '2023-01-01',
+                                                                         'timeZone': 1, 'sn': 'sn'})
 
 
 @pytest.mark.asyncio
@@ -255,7 +258,8 @@ async def test_inverter_day_invalid_params(api_instance):
         await api_instance.inverter_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1)
 
     with pytest.raises(SoliscloudAPI.SolisCloudError):
-        await api_instance.inverter_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, inverter_id='1000', inverter_sn='sn')
+        await api_instance.inverter_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1,
+                                        inverter_id='1000', inverter_sn='sn')
 
     with pytest.raises(SoliscloudAPI.SolisCloudError):
         await api_instance.inverter_day(KEY, SECRET, currency='EUR', time='2023', time_zone=1, inverter_id='1000')
@@ -347,15 +351,18 @@ async def test_inverter_alarm_list_valid(api_instance, patched_api):
     # Required arguments only
     result = await api_instance.inverter_alarm_list(KEY, SECRET, station_id='1000', begintime='2022-01-01', endtime='2023-01-01')
     assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(ALARM_LIST, KEY, SECRET, {'pageNo': 1, 'pageSize': 20, 'stationId': '1000', 'alarmBeginTime': '2022-01-01', 'alarmEndTime': '2023-01-01'})
+    patched_api._get_records.assert_called_with(ALARM_LIST, KEY, SECRET, {'pageNo': 1, 'pageSize': 20, 'stationId': '1000',
+                                                                          'alarmBeginTime': '2022-01-01', 'alarmEndTime': '2023-01-01'})
 
     result = await api_instance.inverter_alarm_list(KEY, SECRET, device_sn='1000', begintime='2022-01-01', endtime='2023-01-01')
     assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(ALARM_LIST, KEY, SECRET, {'pageNo': 1, 'pageSize': 20, 'alarmDeviceSn': '1000', 'alarmBeginTime': '2022-01-01', 'alarmEndTime': '2023-01-01'})
+    patched_api._get_records.assert_called_with(ALARM_LIST, KEY, SECRET, {'pageNo': 1, 'pageSize': 20, 'alarmDeviceSn': '1000',
+                                                                          'alarmBeginTime': '2022-01-01', 'alarmEndTime': '2023-01-01'})
 
-    result = await api_instance.inverter_alarm_list(KEY, SECRET, page_no=4, page_size=30, device_sn='1000', begintime='2022-01-01', endtime='2023-01-01', nmi_code=NMI)
+    result = await api_instance.inverter_alarm_list(KEY, SECRET, page_no=4, page_size=30, device_sn='1000',
+                                                    begintime='2022-01-01', endtime='2023-01-01', nmi_code=NMI)
     assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(ALARM_LIST, KEY, SECRET, {'pageNo': 4, 
+    patched_api._get_records.assert_called_with(ALARM_LIST, KEY, SECRET, {'pageNo': 4,
                                                                           'pageSize': 30,
                                                                           'alarmDeviceSn': '1000',
                                                                           'alarmBeginTime': '2022-01-01',
@@ -367,14 +374,14 @@ async def test_inverter_alarm_list_valid(api_instance, patched_api):
 async def test_inverter_alarm_list_invalid_params(api_instance):
     # Wrong page size
     with pytest.raises(SoliscloudAPI.SolisCloudError):
-        await api_instance.inverter_alarm_list(KEY, SECRET, page_size=1000, station_id='1000', 
+        await api_instance.inverter_alarm_list(KEY, SECRET, page_size=1000, station_id='1000',
                                                begintime='2022-01-01', endtime='2023-01-01')
     # No Id and no Sn
     with pytest.raises(SoliscloudAPI.SolisCloudError):
         await api_instance.inverter_alarm_list(KEY, SECRET, begintime='2022-01-01', endtime='2023-01-01')
     # Both Id and Sn
     with pytest.raises(SoliscloudAPI.SolisCloudError):
-        await api_instance.inverter_alarm_list(KEY, SECRET, begintime='2022-01-01', endtime='2023-01-01', 
+        await api_instance.inverter_alarm_list(KEY, SECRET, begintime='2022-01-01', endtime='2023-01-01',
                                                station_id='1000', device_sn='sn')
     # Illegal begin time
     with pytest.raises(SoliscloudAPI.SolisCloudError):
