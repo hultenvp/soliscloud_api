@@ -82,7 +82,7 @@ async def test_get_data(api_instance, mocker):
     result = await api_instance._get_data("/TEST", KEY, SECRET, {'pageNo': 1, 'pageSize': 100})
     api_instance._post_data_json.assert_called_with('https://soliscloud_test.com:13333/TEST', VALID_HEADER,
                                                     {'pageNo': 1, 'pageSize': 100})
-    assert result = =VALID_RESPONSE
+    assert result == VALID_RESPONSE
 
 
 @pytest.mark.asyncio
