@@ -613,7 +613,7 @@ class SoliscloudAPI():
         sign = base64.b64encode(hmac_obj.digest())
         authorization = "API " + key_id + ":" + sign.decode('utf-8')
 
-        header: dict [str, str] = {
+        header: dict[str, str] = {
             "Content-MD5": content_md5,
             "Content-Type": content_type,
             "Date": date,
@@ -621,11 +621,11 @@ class SoliscloudAPI():
         }
         return header
 
-
     async def _post_data_json(self,
         url: str,
         header: dict[str, Any],
-        params: dict[str, Any]) -> dict[str, Any]:
+        params: dict[str, Any]
+    ) -> dict[str, Any]:
         """ Http-post data to specified domain/canonicalized_resource. """
 
         resp = None
