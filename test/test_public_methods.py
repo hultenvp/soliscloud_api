@@ -33,7 +33,8 @@ async def test_user_station_list_valid(api_instance, patched_api):
     # All arguments filled
     result = await api_instance.user_station_list(KEY, SECRET, page_no=4, page_size=100, nmi_code=NMI)
     assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(USER_STATION_LIST, KEY, SECRET, {'pageNo': 4, 'pageSize': 100, 'nmiCode': 'nmi_code'})
+    patched_api._get_records.assert_called_with(USER_STATION_LIST, KEY, SECRET, {'pageNo': 4, 'pageSize': 100,
+                                                                                 'nmiCode': 'nmi_code'})
 
 
 @pytest.mark.asyncio
@@ -65,7 +66,8 @@ async def test_collector_list_valid(api_instance, patched_api):
     # All arguments filled
     result = await api_instance.collector_list(KEY, SECRET, page_no=4, page_size=100, station_id=1000, nmi_code=NMI)
     assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(COLLECTOR_LIST, KEY, SECRET, {'pageNo': 4, 'pageSize': 100, 'stationId': 1000, 'nmiCode': 'nmi_code'})
+    patched_api._get_records.assert_called_with(COLLECTOR_LIST, KEY, SECRET, {'pageNo': 4, 'pageSize': 100,
+                                                                              'stationId': 1000, 'nmiCode': 'nmi_code'})
 
 
 @pytest.mark.asyncio
@@ -103,7 +105,8 @@ async def test_inverter_list_valid(api_instance, patched_api):
     # All arguments filled
     result = await api_instance.inverter_list(KEY, SECRET, page_no=4, page_size=100, station_id=1000, nmi_code=NMI)
     assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(INVERTER_LIST, KEY, SECRET, {'pageNo': 4, 'pageSize': 100, 'stationId': 1000, 'nmiCode': 'nmi_code'})
+    patched_api._get_records.assert_called_with(INVERTER_LIST, KEY, SECRET, {'pageNo': 4, 'pageSize': 100,
+                                                                             'stationId': 1000, 'nmiCode': 'nmi_code'})
 
 
 @pytest.mark.asyncio
@@ -136,11 +139,13 @@ async def test_station_day_valid(api_instance, patched_api):
     # Required arguments only
     result = await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, station_id='1000')
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(STATION_DAY, KEY, SECRET, {'money': 'EUR', 'time': '2023-01-01', 'timeZone': 1, 'id': '1000'})
+    patched_api._get_data.assert_called_with(STATION_DAY, KEY, SECRET, {'money': 'EUR', 'time': '2023-01-01',
+                                                                        'timeZone': 1, 'id': '1000'})
 
     result = await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, nmi_code=NMI)
     assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(STATION_DAY, KEY, SECRET, {'money': 'EUR', 'time': '2023-01-01', 'timeZone': 1, 'nmiCode': NMI})
+    patched_api._get_data.assert_called_with(STATION_DAY, KEY, SECRET, {'money': 'EUR', 'time': '2023-01-01',
+                                                                        'timeZone': 1, 'nmiCode': NMI})
 
 
 @pytest.mark.asyncio
@@ -150,7 +155,8 @@ async def test_station_day_invalid_params(api_instance):
         await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1)
 
     with pytest.raises(SoliscloudAPI.SolisCloudError):
-        await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1, station_id='1000', nmi_code=NMI)
+        await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023-01-01', time_zone=1,
+                                       station_id='1000', nmi_code=NMI)
 
     with pytest.raises(SoliscloudAPI.SolisCloudError):
         await api_instance.station_day(KEY, SECRET, currency='EUR', time='2023', time_zone=1, station_id='1000')
@@ -349,15 +355,21 @@ async def test_inverter_all_invalid_params(api_instance):
 @pytest.mark.asyncio
 async def test_inverter_alarm_list_valid(api_instance, patched_api):
     # Required arguments only
-    result = await api_instance.inverter_alarm_list(KEY, SECRET, station_id='1000', begintime='2022-01-01', endtime='2023-01-01')
+    result = await api_instance.inverter_alarm_list(KEY, SECRET, station_id='1000',
+                                                    begintime='2022-01-01',
+                                                    endtime='2023-01-01')
     assert result == VALID_RESPONSE
     patched_api._get_records.assert_called_with(ALARM_LIST, KEY, SECRET, {'pageNo': 1, 'pageSize': 20, 'stationId': '1000',
-                                                                          'alarmBeginTime': '2022-01-01', 'alarmEndTime': '2023-01-01'})
+                                                                          'alarmBeginTime': '2022-01-01',
+                                                                          'alarmEndTime': '2023-01-01'})
 
-    result = await api_instance.inverter_alarm_list(KEY, SECRET, device_sn='1000', begintime='2022-01-01', endtime='2023-01-01')
+    result = await api_instance.inverter_alarm_list(KEY, SECRET, device_sn='1000', begintime='2022-01-01',
+                                                    endtime='2023-01-01')
     assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(ALARM_LIST, KEY, SECRET, {'pageNo': 1, 'pageSize': 20, 'alarmDeviceSn': '1000',
-                                                                          'alarmBeginTime': '2022-01-01', 'alarmEndTime': '2023-01-01'})
+    patched_api._get_records.assert_called_with(ALARM_LIST, KEY, SECRET, {'pageNo': 1, 'pageSize': 20,
+                                                                          'alarmDeviceSn': '1000',
+                                                                          'alarmBeginTime': '2022-01-01',
+                                                                          'alarmEndTime': '2023-01-01'})
 
     result = await api_instance.inverter_alarm_list(KEY, SECRET, page_no=4, page_size=30, device_sn='1000',
                                                     begintime='2022-01-01', endtime='2023-01-01', nmi_code=NMI)
