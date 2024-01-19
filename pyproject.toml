@@ -4,11 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "soliscloud-api"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="Peter van Hulten", email="peter.vanhulten@gmx.net" },
 ]
-description = "SolisCloud API access for python"
+description = "SolisCloud API wrapper for python"
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
@@ -30,7 +30,11 @@ dependencies = [
     "aiohttp",
     "async_timeout",
 ]
+exclude = ["soliscloud_api.tests*"]
 
 [project.urls]
 "Homepage" = "https://github.com/hultenvp/soliscloud-api"
 "Bug Tracker" = "https://github.com/hultenvp/soliscloud-api/issues"
+
+[tool.setuptools.packages.find]
+exclude = ["soliscloud_api.tests*"]
