@@ -27,8 +27,8 @@ def test_api_error(mocker):
 
 def test_http_error(mocker):
     err = SoliscloudAPI.HttpError(408)
-    now=datetime.now().strftime("%d-%m-%Y %H:%M GMT")
-    assert f"{err}"==f'Your system time is different from server time, your time is {now}'
+    now = datetime.now().strftime("%d-%m-%Y %H:%M GMT")
+    assert f"{err}" == f'Your system time is different from server time, your time is {now}'
     err = SoliscloudAPI.HttpError(502)
     assert f"{err}" == 'Http status code: 502'
     err = SoliscloudAPI.HttpError(502, "TEST")
