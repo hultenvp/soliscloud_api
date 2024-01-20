@@ -10,7 +10,7 @@ from soliscloud_api import SoliscloudAPI
 class Helpers():
 
     @staticmethod
-    async def get_station_ids(api: SoliscloudAPI, key, secret, nmi = None) -> tuple(int):
+    async def get_station_ids(api: SoliscloudAPI, key, secret, nmi=None) -> tuple(int):
         """ Parses response from get_station_list and returns all station id's """
         response = await api.user_station_list(key, secret, page_no=1, page_size=100, nmi_code=nmi)
         stations = ()
@@ -19,7 +19,7 @@ class Helpers():
         return stations
 
     @staticmethod
-    async def get_inverter_ids(api: SoliscloudAPI, key, secret, station_id: int = None, nmi = None) -> tuple(int):
+    async def get_inverter_ids(api: SoliscloudAPI, key, secret, station_id: int=None, nmi=None) -> tuple(int):
         """
         Parses response from get_inverter_list and returns all inverter id's
         If a station_id is given then a list of inverters for that station_id is returned,
