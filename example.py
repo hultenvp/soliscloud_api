@@ -33,7 +33,7 @@ async def main():
             station_ids = await Helpers.get_station_ids(soliscloud, API_KEY, API_SECRET)
             # Avoid HTTP Error 429 and limit calls/sec (see issue 8)
             time.sleep(2)
-            
+
             # Get inverters for all stations
             inverter_list = await soliscloud.inverter_list(API_KEY, API_SECRET, page_no=1, page_size=100)
             # Australian accounts require NMI, uncomment if required.
