@@ -19,7 +19,7 @@ class Helpers():
         return stations
 
     @staticmethod
-    async def get_inverter_ids(api: SoliscloudAPI, key, secret, station_id: int=None, nmi=None) -> tuple(int):
+    async def get_inverter_ids(api: SoliscloudAPI, key, secret, station_id: int = None, nmi=None) -> tuple(int):
         """
         Parses response from get_inverter_list and returns all inverter id's
         If a station_id is given then a list of inverters for that station_id is returned,
