@@ -10,9 +10,9 @@ from soliscloud_api import SoliscloudAPI
 from soliscloud_api.helpers import Helpers
 
 
-API_KEY = "xxxxx"
+API_KEY = "1300386381676600120"
 # Secret needs to be a binary string!
-API_SECRET = b'yyyyyyyy'
+API_SECRET = b'8227d4ab37aa4730bdbe23c404a0ec76'
 API_NMI = "zzzzz"
 
 logging.basicConfig(level=logging.DEBUG)
@@ -64,3 +64,4 @@ async def main():
 loop = asyncio.new_event_loop()
 loop.run_until_complete(main())
 loop.close()
+
