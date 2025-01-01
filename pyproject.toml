@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "soliscloud-api"
-version = "0.0.2"
+version = "0.1.0"
 authors = [
   { name="Peter van Hulten", email="peter.vanhulten@gmx.net" },
 ]
@@ -17,18 +17,13 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "hashlib",
-    "hmac",
-    "base64",
-    "re",
-    "enum",
+    "pybase64",
     "asyncio",
     "datetime",
-    "http",
-    "json",
     "typing",
     "aiohttp",
     "async_timeout",
+    "throttler",
 ]
 exclude = ["soliscloud_api.tests*"]
 

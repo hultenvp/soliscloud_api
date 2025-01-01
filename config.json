@@ -1,0 +1,5 @@
+{
+    "key" : "put your key here",
+    "secret" : "put your secret here",
+    "nmi" : "only required in AUS" 
+}

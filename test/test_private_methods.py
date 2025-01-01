@@ -1,5 +1,6 @@
 import pytest
 import asyncio
+import time
 from datetime import datetime
 from datetime import timezone
 from aiohttp import ClientError
@@ -58,6 +59,20 @@ def test_prepare_header(mocker):
 async def test_post_data_json(api_instance, mocker):
     mocker.patch('soliscloud_api.SoliscloudAPI._do_post_aiohttp', return_value=VALID_HTTP_RESPONSE)
     result = await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
+    assert result == VALID_RESPONSE['data']
+
+
+@pytest.mark.asyncio
+async def test_post_data_json_throttled(api_instance, mocker):
+    mocker.patch('soliscloud_api.SoliscloudAPI._do_post_aiohttp', return_value=VALID_HTTP_RESPONSE)
+    # test max 2 calls per second
+    iterations = 10
+    start_time = time.time()
+    for i in range(iterations):
+        result = await api_instance._post_data_json("/TEST", VALID_HEADER, {'test': 'test'})
+    duration = time.time() - start_time
+    print(f"Duration:  {duration:2f} seconds")
+    assert duration >= (iterations/2)-1
     assert result == VALID_RESPONSE['data']
 
 

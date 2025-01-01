@@ -1,7 +1,7 @@
 # soliscloud-api
 Python implementation for the SolisCloud API
 
-Supports all endpoints specified in SolisCloud API v1.2 for reading Solis PV monintoring data from the SolisCloud service.
+Supports all endpoints specified in SolisCloud API v1.2 for reading Solis PV monitoring data from the SolisCloud service.
 
 # Prerequisites
 Usage of the API requires an active account on https://www.soliscloud.com and also requires an API key and secret, 
@@ -32,3 +32,4 @@ to be obtained via SolisCloud.
 
 1. If the local time deviates more than 15 minutes from SolisCloud server time then the server will respond with HTTP 408.
 2. When calls to the API return with error message "数据异常 请联系管理员" (English: abnormal data, please contact administrator), then SolisCloud helpdesk needs to fix your account, raise a ticket via soliscloud.com
+3. I could not test the use of the NMI parameter for AUS use cases, please create a ticket or pull request if you experience issues
