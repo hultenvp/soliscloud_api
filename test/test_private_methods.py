@@ -7,6 +7,7 @@ from aiohttp import ClientError
 from soliscloud_api import SoliscloudAPI
 from .const import KEY, SECRET, VALID_RESPONSE
 
+
 VALID_HEADER = {
     'Content-MD5': 'U0Xj//qmRi3zoyapfAAuXw==',
     'Content-Type': 'application/json',
