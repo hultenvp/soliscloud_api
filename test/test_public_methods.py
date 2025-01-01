@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 
 from soliscloud_api import *
