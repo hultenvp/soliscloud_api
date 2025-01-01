@@ -1,3 +1,5 @@
 soliscloud_api/__pycache__/*
 test/__pycache__/*
+dist/*
 .vscode/settings.json
+config_*.json
