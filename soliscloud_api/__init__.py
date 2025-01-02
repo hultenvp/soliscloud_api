@@ -21,8 +21,8 @@ from aiohttp import ClientError, ClientSession
 import async_timeout
 
 # VERSION
-VERSION = '1.0.0'
-SUPPORTED_API_VERSION = '1.2'
+VERSION = '1.0.1'
+SUPPORTED_SPEC_VERSION = '1.2'
 RESOURCE_PREFIX = '/v1/api/'
 
 VERB = "POST"
@@ -143,6 +143,11 @@ error code: {self.code}, response: {self.response}'
     def session(self) -> ClientSession:
         """ aiohttp client session ID."""
         return self._session
+
+    @property
+    def spec_version(self) -> str:
+        """ supported version of the Soliscloud spec."""
+        return SUPPORTED_SPEC_VERSION
 
     # All methods take key and secret as positional arguments followed by
     # one or more keyword arguments
