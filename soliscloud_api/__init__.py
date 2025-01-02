@@ -32,6 +32,7 @@ USER_STATION_LIST = RESOURCE_PREFIX + 'userStationList'
 STATION_DETAIL = RESOURCE_PREFIX + 'stationDetail'
 COLLECTOR_LIST = RESOURCE_PREFIX + 'collectorList'
 COLLECTOR_DETAIL = RESOURCE_PREFIX + 'collectorDetail'
+COLLECTOR_DAY = RESOURCE_PREFIX + 'collector/day'
 INVERTER_LIST = RESOURCE_PREFIX + 'inverterList'
 INVERTER_DETAIL = RESOURCE_PREFIX + 'inverterDetail'
 STATION_DAY = RESOURCE_PREFIX + 'stationDay'
@@ -42,7 +43,8 @@ INVERTER_DAY = RESOURCE_PREFIX + 'inverterDay'
 INVERTER_MONTH = RESOURCE_PREFIX + 'inverterMonth'
 INVERTER_YEAR = RESOURCE_PREFIX + 'inverterYear'
 INVERTER_ALL = RESOURCE_PREFIX + 'inverterAll'
-ALARM_LIST = RESOURCE_PREFIX + 'inverterAlarmList'
+INVERTER_SHELF_TIME = RESOURCE_PREFIX + 'inverter/shelfTime'
+ALARM_LIST = RESOURCE_PREFIX + 'alarmList'
 STATION_DETAIL_LIST = RESOURCE_PREFIX + 'stationDetailList'
 INVERTER_DETAIL_LIST = RESOURCE_PREFIX + 'inverterDetailList'
 STATION_DAY_ENERGY_LIST = RESOURCE_PREFIX + 'stationDayEnergyList'
@@ -54,14 +56,21 @@ EPM_DAY = RESOURCE_PREFIX + 'epm/day'
 EPM_MONTH = RESOURCE_PREFIX + 'epm/month'
 EPM_YEAR = RESOURCE_PREFIX + 'epm/year'
 EPM_ALL = RESOURCE_PREFIX + 'epm/all'
+WEATHER_LIST = RESOURCE_PREFIX + 'weatherList'
+WEATHER_DETAIL = RESOURCE_PREFIX + 'weatherDetail'
+
 
 ONLY_INV_ID_OR_SN_ERR = \
     "Only pass one of inverter_id or inverter_sn as identifier"
+INV_SN_ERR = "Pass inverter_sn as identifier"
 ONLY_COL_ID_OR_SN_ERR = \
     "Only pass one of collector_id or collector_sn as identifier"
+COL_SN_ERR = "Pass collector_sn as identifier"
 ONLY_STN_ID_OR_SN_ERR = \
     "Only pass one of station_id or nmi_code as identifier"
 PAGE_SIZE_ERR = "page_size must be <= 100"
+WEATHER_SN_ERR = "Pass instrument_sn as identifier, \
+containing weather instrument serial"
 
 
 class SoliscloudAPI():
@@ -210,6 +219,26 @@ error code: {self.code}, response: {self.response}'
         else:
             raise SoliscloudAPI.SolisCloudError(ONLY_COL_ID_OR_SN_ERR)
         return await self._get_data(COLLECTOR_DETAIL, key_id, secret, params)
+
+    async def collector_day(
+        self, key_id: str, secret: bytes, /, *,
+        collector_sn: int = None,
+        time: str,
+        time_zone: int,
+    ) -> dict[str, str]:
+        """Datalogger day statistics"""
+
+        SoliscloudAPI._verify_date(SoliscloudAPI.DateFormat.DAY, time)
+        params: dict[str, Any] = {
+            'time': time,
+            'timeZone': time_zone
+        }
+
+        if (collector_sn is None):
+            raise SoliscloudAPI.SolisCloudError(COL_SN_ERR)
+        params['sn'] = collector_sn
+
+        return await self._get_data(COLLECTOR_DAY, key_id, secret, params)
 
     async def inverter_list(
         self, key_id: str, secret: bytes, /, *,
@@ -420,7 +449,28 @@ error code: {self.code}, response: {self.response}'
 
         return await self._get_data(INVERTER_ALL, key_id, secret, params)
 
-    async def inverter_alarm_list(
+    async def inverter_shelf_time(
+        self, key_id: str, secret: bytes, /, *,
+        page_no: int = 1,
+        page_size: int = 20,
+        inverter_sn: str = None
+    ) -> dict[str, str]:
+        """Inverter warranty information"""
+
+        if page_size > 100:
+            raise SoliscloudAPI.SolisCloudError(PAGE_SIZE_ERR)
+        if inverter_sn is None:
+            raise SoliscloudAPI.SolisCloudError(INV_SN_ERR)
+
+        params: dict[str, Any] = {
+            'pageNo': page_no,
+            'pageSize': page_size,
+            'sn': inverter_sn}
+
+        return await self._get_records(
+            INVERTER_SHELF_TIME, key_id, secret, params)
+
+    async def alarm_list(
         self, key_id: str, secret: bytes, /, *,
         page_no: int = 1,
         page_size: int = 20,
@@ -616,6 +666,40 @@ error code: {self.code}, response: {self.response}'
         params: dict[str, Any] = {'sn': epm_sn}
 
         return await self._get_records(EPM_ALL, key_id, secret, params)
+
+    async def weather_list(
+        self, key_id: str, secret: bytes, /, *,
+        page_no: int = 1,
+        page_size: int = 20,
+        station_id: str = None,
+        nmi_code: str = None
+    ) -> dict[str, str]:
+        """Weather list"""
+
+        if page_size > 100:
+            raise SoliscloudAPI.SolisCloudError(PAGE_SIZE_ERR)
+
+        params: dict[str, Any] = {'pageNo': page_no, 'pageSize': page_size}
+        if station_id is not None:
+            # If not specified all inverters for all stations for key_id are
+            # returned
+            params['stationId'] = station_id
+        if nmi_code is not None:
+            params['nmiCode'] = nmi_code
+        return await self._get_records(WEATHER_LIST, key_id, secret, params)
+
+    async def weather_detail(
+        self, key_id: str, secret: bytes, /, *,
+        instrument_sn: str = None
+    ) -> dict[str, str]:
+        """Inverter details"""
+
+        params: dict[str, Any] = {}
+        if instrument_sn is None:
+            raise SoliscloudAPI.SolisCloudError(WEATHER_SN_ERR)
+        params['sn'] = instrument_sn
+
+        return await self._get_data(WEATHER_DETAIL, key_id, secret, params)
 
     async def _get_records(
         self, canonicalized_resource: str, key_id: str, secret: bytes,
