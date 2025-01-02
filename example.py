@@ -55,6 +55,21 @@ async def main():
             # Use helper class as alternative
             inverter_ids = await Helpers.get_inverter_ids(
                 soliscloud, api_key, api_secret)
+
+            inverter_detail = await soliscloud.inverter_detail(
+                api_key, api_secret, inverter_id=inverter_ids[0])
+            inverter_detail_json = json.dumps(inverter_detail, indent=2)
+
+            # Get data collectors for all stations
+            collector_list = await soliscloud.collector_list(
+                api_key, api_secret, page_no=1, page_size=100)
+            # Australian accounts require nmi, uncomment if required.
+            # (NOT TESTED!)
+            # collector_list = await soliscloud.collector_list(
+            #     api_key, api_secret, page_no=1,
+            #     page_size=100, nmi_code=api_nmi)
+            collector_list_json = json.dumps(collector_list, indent=2)
+
         except (
             SoliscloudAPI.SolisCloudError,
             SoliscloudAPI.HttpError,
@@ -72,8 +87,14 @@ async def main():
             print("InverterList call success:")
             print(f"{inverter_list_json}")
 
+            print("InverterDetails call success:")
+            print(f"{inverter_detail_json}")
+
             print("Helper call success:")
             print(f"{inverter_ids}")
+
+            print("CollectorList call success:")
+            print(f"{collector_list_json}")
 
 loop = asyncio.new_event_loop()
 loop.run_until_complete(main())
