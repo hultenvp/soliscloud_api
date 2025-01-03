@@ -21,8 +21,8 @@ from aiohttp import ClientError, ClientSession
 import async_timeout
 
 # VERSION
-VERSION = '1.0.1'
-SUPPORTED_SPEC_VERSION = '1.2'
+VERSION = '1.1.0'
+SUPPORTED_SPEC_VERSION = '2.0'
 RESOURCE_PREFIX = '/v1/api/'
 
 VERB = "POST"
