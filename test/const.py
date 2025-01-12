@@ -24,4 +24,3 @@ VALID_RESPONSE_PAGED_RECORDS = {
     'code': '0',
     'msg': 'success',
     'data': {'page': {'records': [{'item': 1}, {'item': 2}]}}}
-
