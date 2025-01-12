@@ -2,7 +2,15 @@ import pytest
 import soliscloud_api as api
 
 # from soliscloud_api import *
-from .const import KEY, SECRET, NMI, VALID_RESPONSE
+from .const import (
+    KEY,
+    SECRET,
+    NMI,
+    VALID_RESPONSE,
+    VALID_RESPONSE_LIST,
+    VALID_RESPONSE_PAGED_RECORDS,
+    VALID_RESPONSE_RECORDS
+)
 
 
 @pytest.fixture
@@ -15,31 +23,60 @@ def api_instance():
 @pytest.fixture
 def patched_api(api_instance, mocker):
     mocked_class = mocker.create_autospec(api.SoliscloudAPI)
-    mocker.patch.object(mocked_class, '_get_records',
+    mocker.patch.object(mocked_class, '_get_data',
                         return_value=VALID_RESPONSE)
-    mocker.patch.object(mocked_class, '_get_data', return_value=VALID_RESPONSE)
-    mocker.patch.object(api_instance, '_get_records',
-                        mocked_class._get_records)
     mocker.patch.object(api_instance, '_get_data', mocked_class._get_data)
 
     return mocked_class
 
 
+@pytest.fixture
+def patched_api_list(api_instance, mocker):
+    mocked_class = mocker.create_autospec(api.SoliscloudAPI)
+    mocker.patch.object(mocked_class, '_get_data',
+                        return_value=VALID_RESPONSE_LIST)
+    mocker.patch.object(api_instance, '_get_data', mocked_class._get_data)
+
+    return mocked_class
+
+
+@pytest.fixture
+def patched_api_paged(api_instance, mocker):
+    mocked_class = mocker.create_autospec(api.SoliscloudAPI)
+    mocker.patch.object(mocked_class, '_get_records',
+                        return_value=VALID_RESPONSE_PAGED_RECORDS)
+    mocker.patch.object(api_instance, '_get_records',
+                        mocked_class._get_records)
+
+    return mocked_class
+
+
+@pytest.fixture
+def patched_api_records(api_instance, mocker):
+    mocked_class = mocker.create_autospec(api.SoliscloudAPI)
+    mocker.patch.object(mocked_class, '_get_records',
+                        return_value=VALID_RESPONSE_RECORDS)
+    mocker.patch.object(api_instance, '_get_records',
+                        mocked_class._get_records)
+
+    return mocked_class
+
+
 @pytest.mark.asyncio
-async def test_user_station_list_valid(api_instance, patched_api):
+async def test_user_station_list_valid(api_instance, patched_api_paged):
     # Required arguments only
     result = await api_instance.user_station_list(KEY, SECRET)
-    assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(
+    assert result == VALID_RESPONSE_PAGED_RECORDS
+    patched_api_paged._get_records.assert_called_with(
         api.USER_STATION_LIST, KEY, SECRET, {'pageNo': 1, 'pageSize': 20})
-    assert result == VALID_RESPONSE
+    assert result == VALID_RESPONSE_PAGED_RECORDS
 
     # All arguments filled
     result = await api_instance.user_station_list(
         KEY, SECRET,
         page_no=4, page_size=100, nmi_code=NMI)
-    assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(
+    assert result == VALID_RESPONSE_PAGED_RECORDS
+    patched_api_paged._get_records.assert_called_with(
         api.USER_STATION_LIST,
         KEY, SECRET,
         {'pageNo': 4, 'pageSize': 100, 'nmiCode': 'nmi_code'})
@@ -71,13 +108,13 @@ async def test_station_detail_valid(api_instance, patched_api):
 
 
 @pytest.mark.asyncio
-async def test_station_day_valid(api_instance, patched_api):
+async def test_station_day_valid(api_instance, patched_api_list):
     # Required arguments only
     result = await api_instance.station_day(
         KEY, SECRET,
         currency='EUR', time='2023-01-01', time_zone=1, station_id='1000')
-    assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(
+    assert result == VALID_RESPONSE_LIST
+    patched_api_list._get_data.assert_called_with(
         api.STATION_DAY,
         KEY, SECRET,
         {'money': 'EUR', 'time': '2023-01-01', 'timeZone': 1, 'id': '1000'})
@@ -85,8 +122,8 @@ async def test_station_day_valid(api_instance, patched_api):
     result = await api_instance.station_day(
         KEY, SECRET,
         currency='EUR', time='2023-01-01', time_zone=1, nmi_code=NMI)
-    assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(
+    assert result == VALID_RESPONSE_LIST
+    patched_api_list._get_data.assert_called_with(
         api.STATION_DAY,
         KEY, SECRET,
         {'money': 'EUR', 'time': '2023-01-01', 'timeZone': 1, 'nmiCode': NMI})
@@ -126,13 +163,13 @@ async def test_station_day_invalid_params(api_instance):
 
 
 @pytest.mark.asyncio
-async def test_station_month_valid(api_instance, patched_api):
+async def test_station_month_valid(api_instance, patched_api_list):
     # Required arguments only
     result = await api_instance.station_month(
         KEY, SECRET,
         currency='EUR', month='2023-01', station_id='1000')
-    assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(
+    assert result == VALID_RESPONSE_LIST
+    patched_api_list._get_data.assert_called_with(
         api.STATION_MONTH,
         KEY, SECRET,
         {'money': 'EUR', 'month': '2023-01', 'id': '1000'})
@@ -140,8 +177,8 @@ async def test_station_month_valid(api_instance, patched_api):
     result = await api_instance.station_month(
         KEY, SECRET,
         currency='EUR', month='2023-01', nmi_code=NMI)
-    assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(
+    assert result == VALID_RESPONSE_LIST
+    patched_api_list._get_data.assert_called_with(
         api.STATION_MONTH,
         KEY, SECRET,
         {'money': 'EUR', 'month': '2023-01', 'nmiCode': NMI})
@@ -172,13 +209,13 @@ async def test_station_month_invalid_params(api_instance):
 
 
 @pytest.mark.asyncio
-async def test_station_year_valid(api_instance, patched_api):
+async def test_station_year_valid(api_instance, patched_api_list):
     # Required arguments only
     result = await api_instance.station_year(
         KEY, SECRET,
         currency='EUR', year='2023', station_id='1000')
-    assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(
+    assert result == VALID_RESPONSE_LIST
+    patched_api_list._get_data.assert_called_with(
         api.STATION_YEAR,
         KEY, SECRET,
         {'money': 'EUR', 'year': '2023', 'id': '1000'})
@@ -186,8 +223,8 @@ async def test_station_year_valid(api_instance, patched_api):
     result = await api_instance.station_year(
         KEY, SECRET,
         currency='EUR', year='2023', nmi_code=NMI)
-    assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(
+    assert result == VALID_RESPONSE_LIST
+    patched_api_list._get_data.assert_called_with(
         api.STATION_YEAR,
         KEY, SECRET,
         {'money': 'EUR', 'year': '2023', 'nmiCode': NMI})
@@ -213,20 +250,20 @@ async def test_station_year_invalid_params(api_instance):
 
 
 @pytest.mark.asyncio
-async def test_station_all_valid(api_instance, patched_api):
+async def test_station_all_valid(api_instance, patched_api_list):
     # Required arguments only
     result = await api_instance.station_all(
         KEY, SECRET,
         currency='EUR', station_id='1000')
-    assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(
+    assert result == VALID_RESPONSE_LIST
+    patched_api_list._get_data.assert_called_with(
         api.STATION_ALL, KEY, SECRET, {'money': 'EUR', 'id': '1000'})
 
     result = await api_instance.station_all(
         KEY, SECRET,
         currency='EUR', nmi_code=NMI)
-    assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(
+    assert result == VALID_RESPONSE_LIST
+    patched_api_list._get_data.assert_called_with(
         api.STATION_ALL, KEY, SECRET, {'money': 'EUR', 'nmiCode': NMI})
 
 
@@ -243,11 +280,11 @@ async def test_station_all_invalid_params(api_instance):
 
 
 @pytest.mark.asyncio
-async def test_station_detail_list_valid(api_instance, patched_api):
+async def test_station_detail_list_valid(api_instance, patched_api_records):
     # Required arguments only
     result = await api_instance.station_detail_list(KEY, SECRET)
-    assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(
+    assert result == VALID_RESPONSE_RECORDS
+    patched_api_records._get_records.assert_called_with(
         api.STATION_DETAIL_LIST,
         KEY, SECRET,
         {'pageNo': 1, 'pageSize': 20})
@@ -255,8 +292,8 @@ async def test_station_detail_list_valid(api_instance, patched_api):
     result = await api_instance.station_detail_list(
         KEY, SECRET,
         page_no=4, page_size=30)
-    assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(
+    assert result == VALID_RESPONSE_RECORDS
+    patched_api_records._get_records.assert_called_with(
         api.STATION_DETAIL_LIST,
         KEY, SECRET,
         {'pageNo': 4, 'pageSize': 30})
@@ -270,13 +307,14 @@ async def test_station_detail_list_invalid_params(api_instance):
 
 
 @pytest.mark.asyncio
-async def test_station_day_energy_list_valid(api_instance, patched_api):
+async def test_station_day_energy_list_valid(
+        api_instance, patched_api_records):
     # Required arguments only
     result = await api_instance.station_day_energy_list(
         KEY, SECRET,
         time='2023-01-01')
-    assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(
+    assert result == VALID_RESPONSE_RECORDS
+    patched_api_records._get_records.assert_called_with(
         api.STATION_DAY_ENERGY_LIST,
         KEY, SECRET,
         {'pageNo': 1, 'pageSize': 20, 'time': '2023-01-01'})
@@ -284,8 +322,8 @@ async def test_station_day_energy_list_valid(api_instance, patched_api):
     result = await api_instance.station_day_energy_list(
         KEY, SECRET,
         page_no=4, page_size=30, time='2023-01-01')
-    assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(
+    assert result == VALID_RESPONSE_RECORDS
+    patched_api_records._get_records.assert_called_with(
         api.STATION_DAY_ENERGY_LIST,
         KEY, SECRET,
         {'pageNo': 4, 'pageSize': 30, 'time': '2023-01-01'})
@@ -316,13 +354,14 @@ async def test_station_day_energy_list_invalid_params(api_instance):
 
 
 @pytest.mark.asyncio
-async def test_station_month_energy_list_valid(api_instance, patched_api):
+async def test_station_month_energy_list_valid(
+        api_instance, patched_api_records):
     # Required arguments only
     result = await api_instance.station_month_energy_list(
         KEY, SECRET,
         month='2023-01')
-    assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(
+    assert result == VALID_RESPONSE_RECORDS
+    patched_api_records._get_records.assert_called_with(
         api.STATION_MONTH_ENERGY_LIST,
         KEY, SECRET,
         {'pageNo': 1, 'pageSize': 20, 'time': '2023-01'})
@@ -330,8 +369,8 @@ async def test_station_month_energy_list_valid(api_instance, patched_api):
     result = await api_instance.station_month_energy_list(
         KEY, SECRET,
         page_no=4, page_size=30, month='2023-01')
-    assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(
+    assert result == VALID_RESPONSE_RECORDS
+    patched_api_records._get_records.assert_called_with(
         api.STATION_MONTH_ENERGY_LIST,
         KEY, SECRET,
         {'pageNo': 4, 'pageSize': 30, 'time': '2023-01'})
@@ -357,13 +396,14 @@ async def test_station_month_energy_list_invalid_params(api_instance):
 
 
 @pytest.mark.asyncio
-async def test_station_year_energy_list_valid(api_instance, patched_api):
+async def test_station_year_energy_list_valid(
+        api_instance, patched_api_records):
     # Required arguments only
     result = await api_instance.station_year_energy_list(
         KEY, SECRET,
         year='2023')
-    assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(
+    assert result == VALID_RESPONSE_RECORDS
+    patched_api_records._get_records.assert_called_with(
         api.STATION_YEAR_ENERGY_LIST,
         KEY, SECRET,
         {'pageNo': 1, 'pageSize': 20, 'time': '2023'})
@@ -371,8 +411,8 @@ async def test_station_year_energy_list_valid(api_instance, patched_api):
     result = await api_instance.station_year_energy_list(
         KEY, SECRET,
         page_no=4, page_size=30, year='2023')
-    assert result == VALID_RESPONSE
-    patched_api._get_records.assert_called_with(
+    assert result == VALID_RESPONSE_RECORDS
+    patched_api_records._get_records.assert_called_with(
         api.STATION_YEAR_ENERGY_LIST,
         KEY, SECRET,
         {'pageNo': 4, 'pageSize': 30, 'time': '2023'})

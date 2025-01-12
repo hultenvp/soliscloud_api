@@ -5,7 +5,7 @@ from datetime import datetime
 from datetime import timezone
 from aiohttp import ClientError
 from soliscloud_api import SoliscloudAPI
-from .const import KEY, SECRET, VALID_RESPONSE
+from .const import KEY, SECRET, VALID_RESPONSE, VALID_RESPONSE_PAGED_RECORDS
 
 VALID_HEADER = {
     'Content-MD5': 'U0Xj//qmRi3zoyapfAAuXw==',
@@ -15,7 +15,7 @@ VALID_HEADER = {
 }
 
 INVALID_RESPONSE_KEYERROR = {
-    'succes': True,
+    'success': True,
     'codes': '0',
     'msg': 'success',
     'data': {'page': {'records': {'success': 1}}}
@@ -150,7 +150,7 @@ async def test_get_records(api_instance, mocker):
     mocker.patch.object(
         api_instance,
         '_post_data_json',
-        return_value=VALID_RESPONSE['data'])
+        return_value=VALID_RESPONSE_PAGED_RECORDS['data'])
     mocker.patch(
         'soliscloud_api.SoliscloudAPI._prepare_header',
         return_value=VALID_HEADER)
@@ -162,4 +162,4 @@ async def test_get_records(api_instance, mocker):
         'https://soliscloud_test.com:13333/TEST',
         VALID_HEADER,
         {'pageNo': 1, 'pageSize': 100})
-    assert result == VALID_RESPONSE['data']['page']['records']
+    assert result == VALID_RESPONSE_PAGED_RECORDS['data']['page']['records']
