@@ -21,7 +21,7 @@ from aiohttp import ClientError, ClientSession
 import async_timeout
 
 # VERSION
-VERSION = '1.1.0'
+VERSION = '1.2.0'
 SUPPORTED_SPEC_VERSION = '2.0'
 RESOURCE_PREFIX = '/v1/api/'
 
@@ -618,7 +618,7 @@ error code: {self.code}, response: {self.response}'
 
         params: dict[str, Any] = {'sn': epm_sn}
 
-        return await self._get_records(EPM_DETAIL, key_id, secret, params)
+        return await self._get_data(EPM_DETAIL, key_id, secret, params)
 
     async def epm_day(
         self, key_id: str, secret: bytes, /, *,
@@ -636,7 +636,7 @@ error code: {self.code}, response: {self.response}'
             'time': time,
             'timezone': time_zone}
 
-        return await self._get_records(EPM_DAY, key_id, secret, params)
+        return await self._get_data(EPM_DAY, key_id, secret, params)
 
     async def epm_month(
         self, key_id: str, secret: bytes, /, *,
@@ -648,7 +648,7 @@ error code: {self.code}, response: {self.response}'
         SoliscloudAPI._verify_date(SoliscloudAPI.DateFormat.MONTH, month)
         params: dict[str, Any] = {'sn': epm_sn, 'month': month}
 
-        return await self._get_records(EPM_MONTH, key_id, secret, params)
+        return await self._get_data(EPM_MONTH, key_id, secret, params)
 
     async def epm_year(
         self, key_id: str, secret: bytes, /, *,
@@ -660,7 +660,7 @@ error code: {self.code}, response: {self.response}'
         SoliscloudAPI._verify_date(SoliscloudAPI.DateFormat.YEAR, year)
         params: dict[str, Any] = {'sn': epm_sn, 'year': year}
 
-        return await self._get_records(EPM_YEAR, key_id, secret, params)
+        return await self._get_data(EPM_YEAR, key_id, secret, params)
 
     async def epm_all(
         self, key_id: str, secret: bytes, /, *,
@@ -670,7 +670,7 @@ error code: {self.code}, response: {self.response}'
 
         params: dict[str, Any] = {'sn': epm_sn}
 
-        return await self._get_records(EPM_ALL, key_id, secret, params)
+        return await self._get_data(EPM_ALL, key_id, secret, params)
 
     async def weather_list(
         self, key_id: str, secret: bytes, /, *,
@@ -720,7 +720,10 @@ error code: {self.code}, response: {self.response}'
         url = f"{self.domain}{canonicalized_resource}"
         try:
             result = await self._post_data_json(url, header, params)
-            return result['page']['records']
+            if 'page' in result.keys():
+                return result['page']['records']
+            else:
+                return result['records']
         except KeyError as err:
             raise SoliscloudAPI.ApiError("Malformed data", result) from err
 
