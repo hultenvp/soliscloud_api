@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timezone
 from aiohttp import ClientError
 from soliscloud_api import SoliscloudAPI
+from soliscloud_api import SoliscloudError, SoliscloudApiError
 from .const import KEY, SECRET, VALID_RESPONSE, VALID_RESPONSE_PAGED_RECORDS
 
 VALID_HEADER = {
@@ -100,7 +101,7 @@ async def test_post_data_json_fail(api_instance, mocker):
     mocker.patch(
         'soliscloud_api.SoliscloudAPI._do_post_aiohttp',
         return_value=HTTP_RESPONSE_KEYERROR)
-    with pytest.raises(SoliscloudAPI.ApiError):
+    with pytest.raises(SoliscloudApiError):
         await api_instance._post_data_json(
             "/TEST",
             VALID_HEADER,
@@ -109,7 +110,7 @@ async def test_post_data_json_fail(api_instance, mocker):
         'soliscloud_api.SoliscloudAPI._do_post_aiohttp',
         return_value=VALID_HTTP_RESPONSE,
         side_effect=asyncio.TimeoutError)
-    with pytest.raises(SoliscloudAPI.SolisCloudError):
+    with pytest.raises(SoliscloudError):
         await api_instance._post_data_json(
             "/TEST",
             VALID_HEADER,
@@ -118,7 +119,7 @@ async def test_post_data_json_fail(api_instance, mocker):
         'soliscloud_api.SoliscloudAPI._do_post_aiohttp',
         return_value=VALID_HTTP_RESPONSE,
         side_effect=ClientError)
-    with pytest.raises(SoliscloudAPI.SolisCloudError):
+    with pytest.raises(SoliscloudError):
         await api_instance._post_data_json(
             "/TEST",
             VALID_HEADER,
