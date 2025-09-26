@@ -1,6 +1,7 @@
-"""Example application.
-Demonstrates usage of the SoliscloudAPI class to interact with the Soliscloud API.
-It also shows how to use the Helpers class for common tasks.
+"""
+Example application.
+Demonstrates usage of the SoliscloudAPI class to interact with the Soliscloud
+API. It also shows how to use the Helpers class for common tasks.
 Fill in your own API key and secret in config.json before running.
 """
 
@@ -108,7 +109,18 @@ async def main():
 
             print("InverterDetailList call success:")
             print(idl_json)
-            for key in ['iAc1', 'uAc1', 'pA', 'iB', 'uB', 'pB', 'iC', 'uC', 'pC', 'apparentPower']:
+            for key in [
+                'iAc1',
+                'uAc1',
+                'pA',
+                'iB',
+                'uB',
+                'pB',
+                'iC',
+                'uC',
+                'pC',
+                'apparentPower'
+            ]:
                 print(f"{key}: {idl[0][key]}")
 
 loop = asyncio.new_event_loop()
