@@ -7,13 +7,13 @@ By using the entity classes you can more easily access the data
 attributes of the plant, inverters and collectors.
 
 There are 2 ways to create the entity classes:
-1. Use the class method 'initialize_from_data' to create entity instances
+1. Use the class method 'from_data' to create entity instances
    from data retrieved from the API. It will create one or more entity
    instances from the data passed in. This method will not retrieve any data
    from the API, so you need to do that yourself first. It will not
    recursively create all entities, i.e. plants, inverters and collectors.
    You need to call it separately for each entity class.
-2. Use the class method 'initialize_from_session' to create entity instances
+2. Use the class method 'from_session' to create entity instances
    by passing in the aiohttp session and API credentials. This method will
    retrieve the data from the API and create the entity instances. It
    will recursively create all entities, i.e. plants, inverters
@@ -51,24 +51,30 @@ async def main():
 
     async with ClientSession() as websession:
         try:
-            the_api = api('https://soliscloud.com:13333', websession)
-            data = await the_api.inverter_list(
-                api_key, api_secret, page_no=1, page_size=100)
-            # use plant_id of your own plant here to get inverters for that plant
-            # use inverter_id to only get one specific inverter
-            inverters = Inverter.initialize_from_data(
-                data, plant_id='your plant id goes here')
-            plants = await Plant.initialize_from_session(
+            the_api = api(api.DEFAULT_DOMAIN, websession)
+            plants = await Plant.from_session(
                 websession, api_key, api_secret)
-        except (
-            SoliscloudError,
-            SoliscloudHttpError,
-            SoliscloudTimeoutError,
-            SoliscloudApiError,
-        ) as error:
-            print(f"Error: {error}")
-        else:
+            # Whole entity tree is now created, print it out
+            print("*** from_session ***")
+            print(plants[0])
+            # Alternatively, get started by getting data from API
+            # and then create entity instances from that data.
+            plant_data = await the_api.station_detail_list(
+                api_key, api_secret, page_no=1, page_size=100)
+            plants = Plant.from_data(plant_data)
+            # use plant_id of your own plant here to get inverters
+            # for that plant.
+            # use inverter_id to only get one specific inverter
+            inverter_data = await the_api.inverter_list(
+                api_key, api_secret, page_no=1, page_size=100)
+            inverters = Inverter.from_data(
+                inverter_data, plant_id=plants[0].plant_id)
+            plants[0].add_inverters(inverters)
+            print("\n*** from_data ***")
+            print(plants[0])
             p = plants[0]
+            # Now access some attributes of the entities
+            print("\n*** Accessing attributes ***")
             print(f"Plant id: {p.plant_id}")
             print(f"Plant name: {p.data['station_name']}")
             print(f"Number of inverters: {len(p.inverters)}")
@@ -77,9 +83,19 @@ async def main():
                 # The attributes if the inverter are in inv.data
                 # If an attribute has a unit then the value is of
                 # dimensioned type
+                print(f"Inverter state: {inv.data['state']}")
+                # Print full energy type attribute
                 print(f"Total energy: {inv.data['etotal']}")
+                # print value and unit separately
                 print(f"Total energy value: {inv.data['etotal'].value}")
                 print(f"Total energy unit: {inv.data['etotal'].unit}")
+        except (
+            SoliscloudError,
+            SoliscloudHttpError,
+            SoliscloudTimeoutError,
+            SoliscloudApiError,
+        ) as error:
+            print(f"Error: {error}")
 loop = asyncio.new_event_loop()
 loop.run_until_complete(main())
 loop.close()
