@@ -107,15 +107,14 @@ async def test_station_detail_valid(api_instance, patched_api):
     patched_api._get_data.assert_called_with(
         STATION_DETAIL, KEY, SECRET, {'id': 1000})
 
-    # All arguments filled
-    result = await api_instance.station_detail(
-        KEY, SECRET,
-        station_id=1000, nmi_code=NMI)
-    assert result == VALID_RESPONSE
-    patched_api._get_data.assert_called_with(
-        STATION_DETAIL,
-        KEY, SECRET,
-        {'id': 1000, 'nmiCode': 'nmi_code'})
+
+@pytest.mark.asyncio
+async def test_station_detail_invalid_params(api_instance):
+    # ID and SN together
+    with pytest.raises(SoliscloudError):
+        await api_instance.station_detail(
+            KEY, SECRET,
+            station_id=1000, nmi_code=NMI)
 
 
 @pytest.mark.asyncio

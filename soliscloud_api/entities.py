@@ -22,12 +22,24 @@ def _normalize_to_list(data):
 
 
 class SolisEntity(object):
+    """Base class with common methods for SolisCloud entities."""
     def __init__(
         self,
         type: EntityType,
         data: dict[str, Any] = None,
         whitelist: list[str] = None
     ):
+        """Base class constructor. This is not meant to be called and there
+        are no checks on data passed. Use from_data() or from_session()
+        class methods on derived classes instead.
+
+        Args:
+            type (EntityType): Type of entity (e.g., EntityType.PLANT)
+            data (dict[str, Any], optional): Data for this entity as received
+                from Soliscloud API call. Defaults to None.
+            whitelist (list[str], optional): Not yet used, ignore.
+                Defaults to None.
+        """
         self._data = None
         if data is not None:
             self._data = SolisDataFactory.create(type, data)
@@ -48,10 +60,12 @@ class SolisEntity(object):
 
     @property
     def data_timestamp(self) -> datetime:
-        return datetime.fromtimestamp(int(self._data['data_timestamp']) / 1e3)
+        if self._data is None or 'data_timestamp' not in self._data:
+            return None
+        return self._data['data_timestamp'].timestamp()
 
     @classmethod
-    def initialize_from_data(
+    def from_data(
         cls,
         data: dict[str, Any] | list[dict[str, Any]],
         /, **filters
@@ -59,6 +73,12 @@ class SolisEntity(object):
         """
         Generic method to parse data and return entity objects.
         Filters can be passed as keyword arguments (e.g., plantId=..., id=...).
+        Args:
+            data (dict[str, Any] | list[dict[str, Any]]):
+                response from Soliscloud API call.
+            **filters: key-value pairs to filter records.
+        Returns:
+            list[SolisEntity]: list of zero or more entity objects.
         """
         return cls._do_initialize_from_data(data, **filters)
 
@@ -89,6 +109,14 @@ class SolisEntity(object):
 
 class Collector(SolisEntity):
     def __init__(self, data: dict[str, Any]) -> None:
+        """Constructor. Do not use directly. Use from_data or from_session
+
+        Args:
+            data (dict[str, Any]): Data from API response belonging to entity.
+
+        Raises:
+            ValueError: Raised when data does not pass minimal conditions.
+        """
         if not isinstance(data, dict):
             raise ValueError("Collector data must be a dict")
         if 'id' not in data:
@@ -104,17 +132,18 @@ class Collector(SolisEntity):
         '''Alias for 'id' attribute '''
         try:
             return self._data['id']
-        except AttributeError:
-            return None
+        except KeyError:
+            raise AttributeError("Collector data has no 'id' attribute")
 
     @classmethod
-    async def initialize_from_session(
+    async def from_session(
         cls,
         session: ClientSession,
         key_id: str,
         secret: bytes,
         /, *,
         plant_id: int = None,
+        nmi_code: str = None,
         collector_sn: str = None,
         collector_id: int = None
     ) -> list[Collector]:
@@ -126,12 +155,17 @@ class Collector(SolisEntity):
         First evaluates plant_id, then collector_id, then collector_sn.
 
         Args:
-            session (ClientSession): _description_
-            key_id (str): _description_
-            secret (bytes): _description_
-            plant_id (int, optional): _description_. Defaults to None.
-            collector_sn (str, optional): _description_. Defaults to None.
-            collector_id (int, optional): _description_. Defaults to None.
+            session (ClientSession): http session to use
+            key_id (str): API key
+            secret (bytes): API secret
+            plant_id (int, optional): Plant ID to filter collectors by.
+                Defaults to None.
+            nmi_code (str, optional): NMI code to filter by. Only used
+                in AUS. Defaults to None.
+            collector_sn (str, optional): collector serial number to filter by.
+                Defaults to None.
+            collector_id (int, optional): collector ID to filter by.
+                Defaults to None.
 
         Returns:
             list[Collector]: Returns a list of zero or more Collector objects
@@ -139,12 +173,13 @@ class Collector(SolisEntity):
         collectors: list[Collector] = []
         try:
             soliscloud = SoliscloudAPI(
-                'https://soliscloud.com:13333', session)
+                SoliscloudAPI.DEFAULT_DOMAIN, session)
             collector_data = []
             if plant_id is not None:
                 collector_data = await soliscloud.collector_list(
                     key_id, secret,
-                    station_id=plant_id)
+                    station_id=plant_id,
+                    nmi_code=nmi_code)
             elif collector_id is not None:
                 collector_data.append(await soliscloud.collector_detail(
                     key_id, secret,
@@ -154,7 +189,8 @@ class Collector(SolisEntity):
                     key_id, secret,
                     collector_sn=collector_sn))
             else:
-                return collectors
+                collector_data = await soliscloud.collector_list(
+                    key_id, secret)
             for record in collector_data:
                 if plant_id is None or record['stationId'] == plant_id:
                     collector = cls(record)
@@ -164,7 +200,7 @@ class Collector(SolisEntity):
         return collectors
 
     @classmethod
-    def initialize_from_data(
+    def from_data(
         cls,
         data: dict[str, Any] | list[dict[str, Any]],
         /, *,
@@ -178,7 +214,11 @@ class Collector(SolisEntity):
         Args:
             data (dict[str, Any] | list[dict[str, Any]]):
                 response from collector_detail() or collector_list() call.
-            collector_id (str, optional): _description_. Defaults to None.
+            collector_id (str, optional): Only collectors for matching
+                collector_id will be created. Defaults to None.
+            station_id (str, optional): Only collectors for matching
+                station_id will be created.
+                Defaults to None.
 
         Returns:
             list[Collector]: list of zero or more Collector objects
@@ -189,19 +229,45 @@ class Collector(SolisEntity):
 
 class Inverter(SolisEntity):
     def __init__(self, data: dict[str, Any]) -> None:
+        """Constructor. Do not use directly. Use from_data or from_session
+
+        Args:
+            data (dict[str, Any]): Data from API response belonging to entity.
+
+        Raises:
+            ValueError: Raised when data does not pass minimal conditions.
+        """
         if not isinstance(data, dict):
             raise ValueError("Inverter data must be a dict")
         if 'id' not in data:
             raise ValueError("Inverter data must include 'id'")
         super().__init__(EntityType.INVERTER, data)
-        self._collector = None
+        self._collectors = list()
+
+    def add_collectors(self, collectors: list[Collector]) -> None:
+        """Register list of collectors under inverter
+
+        Args:
+            collectors (list[Collector]): List of collector entities to
+                register
+        """
+        self._collectors = collectors
 
     def add_collector(self, collector: Collector) -> None:
-        self._collector = collector
+        """Add collector entity to list of registered collectors
+
+        Args:
+            collector (Collector): Collector entity to add
+        """
+        self._collectors.append(collector)
 
     def __str__(self):
-        out = f"  inverter id: {self._data['id']}, "
-        out += f"collector id: {self._collector.collector_id}"
+        out = f"inverter id: {self._data['id']}, collector id's: ["
+        for collector in self._collectors:
+            out += f"{collector.collector_id}, "
+        if len(self._collectors) > 0:
+            out = out[:-2]
+        out += "]"
         return out
 
     @property
@@ -209,11 +275,20 @@ class Inverter(SolisEntity):
         '''Alias for 'id' attribute '''
         try:
             return self._data['id']
-        except AttributeError:
-            return None
+        except KeyError:
+            raise AttributeError("Inverter data has no 'id' attribute")
+
+    @property
+    def collectors(self) -> list[Collector]:
+        """Return list of collectors registered under inverter
+
+        Returns:
+            list[Collector]: List of Collector objects
+        """
+        return self._collectors
 
     @classmethod
-    async def initialize_from_session(
+    async def from_session(
         cls,
         session: ClientSession,
         key_id: str,
@@ -245,7 +320,7 @@ class Inverter(SolisEntity):
         inverters: list[Inverter] = []
         try:
             soliscloud = SoliscloudAPI(
-                'https://soliscloud.com:13333', session)
+                SoliscloudAPI.DEFAULT_DOMAIN, session)
             inverter_data = []
             if inverter_id is not None:
                 inverter_data.append(await soliscloud.inverter_detail(
@@ -258,17 +333,17 @@ class Inverter(SolisEntity):
                 if inverter_id is None or record['id'] == inverter_id:
                     if plant_id is None or record['stationId'] == plant_id:
                         inverter = cls(record)
-                        collectors = await Collector.initialize_from_session(
+                        collectors = await Collector.from_session(
                             session, key_id, secret,
                             collector_id=inverter.data["collector_id"])
-                        inverter.add_collector(collectors[0])
+                        inverter._collectors = collectors
                         inverters.append(inverter)
         except SoliscloudError:
             pass
         return inverters
 
     @classmethod
-    def initialize_from_data(
+    def from_data(
         cls,
         data: dict[str, Any] | list[dict[str, Any]],
         /, *,
@@ -298,6 +373,14 @@ class Inverter(SolisEntity):
 
 class Plant(SolisEntity):
     def __init__(self, data: dict[str, Any]) -> None:
+        """Constructor. Do not use directly. Use from_data or from_session
+
+        Args:
+            data (dict[str, Any]): Data from API response belonging to entity.
+
+        Raises:
+            ValueError: Raised when data does not pass minimal conditions.
+        """
         if not isinstance(data, dict):
             raise ValueError("Plant data must be a dict")
         if 'id' not in data:
@@ -308,15 +391,29 @@ class Plant(SolisEntity):
     def __str__(self):
         out = f"plant id: {self.plant_id}\n"
         out += super().__str__()
-        out += "\ninverters: [\n" + str(*self.inverters) + "\n]\n"
-        if out[-4:] == "\n\n]\n":
-            out = out[:-4] + "]\n"
+        out += "\ninverters: [\n"
+        for i in self.inverters:
+            out += "  " + str(i) + ",\n"
+        if out[-2:] == ",\n":
+            out = out[:-2] + "\n]"
+        elif out[-2:] == "[\n":
+            out = out[:-1] + "]"
         return out
 
     def add_inverters(self, inverters: list[Inverter]) -> None:
+        """Register list of inverters under plant
+
+        Args:
+            inverters (list[Inverter]): List of inverter entities to register
+        """
         self._inverters = inverters
 
     def add_inverter(self, inverter: Inverter) -> None:
+        """Add inverter entity to list of registered inverters
+
+        Args:
+            inverter (Inverter): Inverter entity to add
+        """
         self._inverters.append(inverter)
 
     @property
@@ -324,15 +421,15 @@ class Plant(SolisEntity):
         '''Alias for 'id' attribute '''
         try:
             return self._data['id']
-        except AttributeError:
-            return None
+        except KeyError:
+            raise AttributeError("Plant data has no 'id' attribute")
 
     @property
     def inverters(self) -> list[Inverter]:
         return self._inverters
 
     @classmethod
-    async def initialize_from_session(
+    async def from_session(
         cls,
         session: ClientSession,
         key_id: str, secret: bytes,
@@ -360,7 +457,7 @@ class Plant(SolisEntity):
             plants: list[Plant] = []
             plant_data: list[dict[str, Any]] = []
             soliscloud = SoliscloudAPI(
-                'https://soliscloud.com:13333', session)
+                SoliscloudAPI.DEFAULT_DOMAIN, session)
             if plant_id is None:
                 plant_data = await soliscloud.station_detail_list(
                     key_id, secret)
@@ -371,7 +468,7 @@ class Plant(SolisEntity):
 
             for plant_record in plant_data:
                 plant = cls(plant_record)
-                plant.add_inverters(await Inverter.initialize_from_session(
+                plant.add_inverters(await Inverter.from_session(
                     session, key_id, secret,
                     plant_id=plant.plant_id))
 
@@ -381,7 +478,7 @@ class Plant(SolisEntity):
         return plants
 
     @classmethod
-    def initialize_from_data(
+    def from_data(
         cls,
         data: dict[str, Any] | list[dict[str, Any]],
         /, *,
@@ -400,15 +497,4 @@ class Plant(SolisEntity):
         Returns:
             list[Plant]: A list of zero or more Plant objects
         """
-        cls._do_initialize_from_data(data, id=plant_id)
-#        plants: list[Plant] = []
-#        plant_data = _normalize_to_list(data)
-#        for record in plant_data:
-#            if not isinstance(record, dict):
-#                raise ValueError("Each plant/station record must be a dict")
-#            if 'id' not in record:
-#                raise ValueError("Plant/station record missing 'id'")
-#            if plant_id is None or record['id'] == plant_id:
-#                plant = cls(record)
-#                plants.append(plant)
-#        return plants
+        return cls._do_initialize_from_data(data, id=plant_id)

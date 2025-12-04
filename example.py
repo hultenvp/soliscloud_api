@@ -34,7 +34,7 @@ async def main():
     async with ClientSession() as websession:
         try:
             soliscloud = SoliscloudAPI(
-                'https://soliscloud.com:13333', websession)
+                SoliscloudAPI.DEFAULT_DOMAIN, websession)
 
             # Retrieve list of Stations, a.k.a. plants
             station_list = await soliscloud.user_station_list(

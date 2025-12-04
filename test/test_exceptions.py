@@ -1,5 +1,3 @@
-import pytest
-from soliscloud_api import SoliscloudAPI
 from soliscloud_api import (
     SoliscloudError,
     SoliscloudApiError,
@@ -7,12 +5,6 @@ from soliscloud_api import (
     SoliscloudTimeoutError,
 )
 from datetime import datetime
-
-
-@pytest.fixture
-def api_instance():
-    instance = SoliscloudAPI('https://soliscloud_test.com:13333/', 1)
-    return instance
 
 
 def test_soliscloud_error(mocker):
