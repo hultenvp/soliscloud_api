@@ -20,7 +20,7 @@ def validate_inverter(inverter: Inverter, inverter_data: dict):
     assert inverter.inverter_id == inverter_data['id']
     assert inverter.data_timestamp == int(inverter_data['dataTimestamp'])/1e3
     assert inverter.data["state"].value == 1
-    assert inverter.data["state"].name == "Online"
+    assert inverter.data["state"].name == "ONLINE"
     assert inverter.data["power"].value == 1500
     assert inverter.data["power"].unit == "W"
 
