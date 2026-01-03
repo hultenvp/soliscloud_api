@@ -1,5 +1,6 @@
 import pytest
 import math
+from enum import IntEnum
 from soliscloud_api.types import (
     GenericType,
     SiType,
@@ -12,7 +13,6 @@ from soliscloud_api.types import (
     FrequencyType,
     TemperatureType,
     CurrencyType,
-    EnumType,
     ListType,
     DictType,
     State,
@@ -215,22 +215,16 @@ def test_currency_type_unit(mocker):
 
 
 def test_enum_type(mocker):
-    et = EnumType(State(State.ONLINE))
+    et = State(State.ONLINE)
     assert et.value == State.ONLINE
-    assert f"{et}" == "1 Online (EnumType)"
-    et = EnumType(State(State.OFFLINE))
+    et = State(State.OFFLINE)
     assert et.value == State.OFFLINE
-    assert f"{et}" == "2 Offline (EnumType)"
-    with pytest.raises(TypeError):
-        et = EnumType(3)  # noqa: F841
-    with pytest.raises(TypeError):
-        et = EnumType("ONLINE")  # noqa: F841
 
 
 def test_enum_type_equality(mocker):
-    et1 = EnumType(State(State.ONLINE))
-    et2 = EnumType(State(State.ONLINE))
-    et3 = EnumType(State(State.OFFLINE))
+    et1 = State(State.ONLINE)
+    et2 = State(State.ONLINE)
+    et3 = State(State.OFFLINE)
     et4 = State(State.ONLINE)
     et5 = 1
     et6 = "Online"
@@ -240,7 +234,7 @@ def test_enum_type_equality(mocker):
     assert et1 == et4
     assert et3 != et4
     assert et1 == et5
-    assert et1 == et6
+    assert et1.name.title() == et6
     assert et1 != 0.003
 
 
@@ -263,12 +257,12 @@ def test_dict_type(mocker):
     assert dt.data == {'a': 1, 'b': 2}
     assert f"{dt}" == "{\n  a: 1,\n  b: 2\n}"
     lt = ListType([EnergyType(1, 'kWh'), EnergyType(2000, 'Wh')])
-    dt = DictType({'energy_values': lt, 'status': EnumType(State(State.ONLINE))})  # noqa: E501
+    dt = DictType({'energy_values': lt, 'status': State(State.ONLINE)})  # noqa: E501
     assert isinstance(dt.data['energy_values'], ListType)
-    assert isinstance(dt.data['status'], EnumType)
+    assert isinstance(dt.data['status'], IntEnum)
     assert dt.data['energy_values'].data[0].value == 1
     assert dt.data['energy_values'].data[1].value == 2
     assert dt.data['status'].value == State.ONLINE
-    assert f"{dt}" == "{\n  energy_values: [\n    1 kWh (EnergyType),\n    2 kWh (EnergyType)\n  ],\n  status: 1 Online (EnumType)\n}"  # noqa: E501
+    assert f"{dt}" == "{\n  energy_values: [\n    1 kWh (EnergyType),\n    2 kWh (EnergyType)\n  ],\n  status: 1\n}"  # noqa: E501
     with pytest.raises(TypeError):
         dt = DictType(3)  # noqa: F841
