@@ -8,10 +8,10 @@ from soliscloud_api.types import (  # noqa: F401
     PowerType,
     EnergyType,
     CurrencyType,
-    EnumType,
     FrequencyType,
 )
 from datetime import datetime
+from enum import IntEnum
 
 mocked_inverter_data_units = {
     "dcInputtype": 2,
@@ -120,12 +120,12 @@ def test_solis_data_factory_inverter_nested(mocker):
     inverter = SolisDataFactory.create(
         EntityType.INVERTER, mocked_inverter_nested)
     assert inverter["state"].value == 1
-    assert inverter["state"].name == "Online"
+    assert inverter["state"].name == "ONLINE"
     assert inverter["inverter_id"] == 12345
     assert inverter["inverter_name"] == "Test Inverter"
     assert inverter["data_timestamp"] == datetime.fromtimestamp(1687924800)
     assert inverter["type"].value == 1
-    assert inverter["type"].name == "Grid"
+    assert inverter["type"].name == "GRID"
     nested_list = inverter["nested_list"]
     assert nested_list[0]["inverter_id"] == 1
     assert nested_list[0]["inverter_name"] == "Inverter 1"
@@ -168,16 +168,16 @@ def test_solis_data_factory_inverter_no_units(mocker):
     assert inverter["year_income"].unit == "EUR"
     assert inverter["money"] == "EUR"
     assert inverter["state"].value == 1
-    assert inverter["state"].name == "Online"
+    assert inverter["state"].name == "ONLINE"
     assert inverter["inverter_id"] == 12345
     assert inverter["inverter_name"] == "Test Inverter"
     assert inverter["ac_output_power"].value == 3000
     assert inverter["ac_output_power"].unit == "W"
     assert inverter["data_timestamp"] == datetime.fromtimestamp(1687924800)
     assert inverter["state_exception_flag"].value == 0
-    assert inverter["state_exception_flag"].name == "Normal_Offline"
+    assert inverter["state_exception_flag"].name == "NORMAL_OFFLINE"
     assert inverter["type"].value == 1
-    assert inverter["type"].name == "Grid"
+    assert inverter["type"].name == "GRID"
     assert inverter["voltage"].value == 230
     assert inverter["voltage"].unit == "V"
     assert inverter["current"].value == 10
@@ -241,19 +241,19 @@ def test_solis_data_factory_inverter(mocker):
     assert inverter["pow_1"].value == 0
     assert inverter["pow_1"].unit == 'W'
     assert not hasattr(inverter, 'pow2')
-    assert isinstance(inverter["current_state"], EnumType)
+    assert isinstance(inverter["current_state"], IntEnum)
     assert inverter["year_income"].value == 115.21
     assert inverter["year_income"].unit == "EUR"
     assert inverter["money"] == "EUR"
     assert inverter["state"].value == 1
-    assert inverter["state"].name == "Online"
+    assert inverter["state"].name == "ONLINE"
     assert inverter["id"] == '111111'
     assert isinstance(inverter["data_timestamp"], datetime)
     assert inverter["state_exception_flag"].value == 0
-    assert inverter["state_exception_flag"].name == "Normal_Offline"
+    assert inverter["state_exception_flag"].name == "NORMAL_OFFLINE"
     # TODO: type is missing in real data.
     # assert inverter["type"].value == 1
-    # assert inverter["type"].name == "Grid"
+    # assert inverter["type"].name == "GRID"
     assert isinstance(inverter["fac"], FrequencyType)
     assert inverter["fac"].value == 49.97
     assert inverter["fac"].unit == "Hz"

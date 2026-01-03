@@ -323,40 +323,6 @@ class CurrencyType(DimensionedType):
         pass
 
 
-class EnumType(UserDict):
-
-    def __init__(self, value: IntEnum):
-        if isinstance(value, IntEnum):
-            super().__init__(
-                {'value': value.value, 'name': value.name.title()})
-        else:
-            raise TypeError(f"{value} not of type IntEnum")
-
-    def __str__(self):
-        s = f"{self['value']}"
-        if self['name'] is not None:
-            s += f" {self['name']}"
-        return s + f" ({self.__class__.__name__})"
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.value == other.value and self.name == other.name
-        elif isinstance(other, int):
-            return self.value == other
-        elif isinstance(other, str):
-            return self.name == other
-        else:
-            return False
-
-    @property
-    def value(self):
-        return self['value']
-
-    @property
-    def name(self):
-        return self['name']
-
-
 class ListType(UserList):
     def __init__(self, value):
         if type(value) is list:
@@ -588,21 +554,21 @@ class SolisDataFactory:
         else:
             match(key):
                 case 'state' | 'current_state':
-                    p = EnumType(State(int(value)))
+                    p = State(int(value))
                 case 'state_exception_flag':
-                    p = EnumType(InverterOfflineState(value))
+                    p = InverterOfflineState(value)
                 case 'ac_output_type':
-                    p = EnumType(AcOutputType(0 if int(value) == 0 else 1))
+                    p = AcOutputType(0 if int(value) == 0 else 1)
                 case 'inverter_meter_model':
-                    p = EnumType(InverterModel(int(value)))
+                    p = InverterModel(int(value))
                 case 'station_type':
-                    p = EnumType(PlantType(int(value)))
+                    p = PlantType(int(value))
                 case 'type':
                     match(type):
                         case EntityType.PLANT:
-                            p = EnumType(PlantType(int(value)))
+                            p = PlantType(int(value))
                         case EntityType.INVERTER:
-                            p = EnumType(InverterType(int(value)))
+                            p = InverterType(int(value))
                         case _:
                             p = int(value)
                 case _ if re.search('pec$|percent$', key, re.IGNORECASE) is not None:  # noqa: E501
